@@ -25,7 +25,7 @@ window.labelDB = {
         'Arcadia Loop Academy': '',
         'Arcadia MasterTrax': '',
         'Arcadia MaxMusic': '',
-        'Arcadia Media Music': '',
+        'Arcadia Media Music': 'de05ab86-1ef9-4dd9-8f82-206507365040',
         'Arcadia Minimal': '',
         'Arcadia National': '',
         'Arcadia Shorts': '',
