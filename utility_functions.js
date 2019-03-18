@@ -1,13 +1,13 @@
 // ==UserScript==
 /* globals artistDB, labelDB, MBImport */
 // @name           Utility functions
-// @version        2019.3.18.0
+// @version        2019.3.18.1
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // ==/UserScript==
 
-const buildArtistCredit = function(name) {
+window.buildArtistCredit = (name) => {
         // TODO: Find a release with multiple artists on a track / handle multiple artist credits
 
         let creditObj = {
@@ -23,7 +23,7 @@ const buildArtistCredit = function(name) {
         return creditObj;
     },
     
-    buildLabelCredit = function(infoObj) {
+    buildLabelCredit = (infoObj) => {
         const label = infoObj.label;
         return [{
             catno: infoObj.catNum,
@@ -32,7 +32,7 @@ const buildArtistCredit = function(name) {
         }];
     },
     
-    buildTracklistArray = function(infoObj) {
+    buildTracklistArray = (infoObj) => {
         let trackArray = [];
 
         infoObj.tracks = [...new Set(infoObj.tracks)];
@@ -50,9 +50,9 @@ const buildArtistCredit = function(name) {
         return trackArray;
     },
     
-    buildReleaseObject = function(infoObj, format = 'CD') {
+    buildReleaseObject = (infoObj, format = 'CD') => {
         return {
-            title: infoObj.albumName,
+            title: infoObj.releaseName,
             artist_credit: [buildArtistCredit(infoObj.releaseArtist)],
             type: 'album',
             status: 'official',
