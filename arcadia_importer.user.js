@@ -1,5 +1,5 @@
 // ==UserScript==
-/* globals artistDB, labelDB */
+/* globals artistDB, labelDB, MBImport */
 // @name           Import Arcadia releases to MusicBrainz
 // @description    Add a button to import Arcadia releases to MusicBrainz
 // @version        2019.3.17.0
@@ -116,9 +116,10 @@ $getID("gvTracks").find('tr:gt(0)').each(function() { // Process track rows
                 rI.releaseArtist = [...rI.releaseArtistList][0]; // set them as release artist.
             }
             const releaseObj = buildReleaseObject();
+            const edit_note = MBImport.makeEditNote(rI.url, 'Arcadia', '', 'https://github.com/brianfreud/Userscripts/');
             
-            console.log(MBImport.makeEditNote(rI.url, 'Arcadia','','https://github.com/brianfreud/Userscripts/')); //test
-            console.log(MBImport.buildFormHTML(releaseObj)); //test
+            var parameters = MBImport.buildFormParameters(releaseObj, edit_note);
+            console.log(MBImport.buildFormHTML(releaseObj));
         }
     });
 });
