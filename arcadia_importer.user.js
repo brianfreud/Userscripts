@@ -51,7 +51,6 @@ $getID("gvTracks").find('tr:gt(0)').each(function() { // Process track rows
         rI.releaseArtistList.add(artist);
         rI.remainingLookups--;
         if (rI.remainingLookups === 0) { // Check if all async actions have completed
-            console.log("ready");
             if (rI.releaseArtistList.size === 1) { // If only one artist for release's tracks,
                 rI.releaseArtist = [...rI.releaseArtistList][0]; // set them as release artist.
             }
