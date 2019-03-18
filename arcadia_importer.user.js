@@ -1,8 +1,8 @@
 // ==UserScript==
-/* globals artistDB, labelDB, MBImport */
+/* globals artistDB, labelDB, MBImport, $ */
 // @name           Import Arcadia releases to MusicBrainz
 // @description    Add a button to import Arcadia releases to MusicBrainz
-// @version        2019.3.17.2
+// @version        2019.3.17.3
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/arcadia_importer.user.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/arcadia_importer.user.js
@@ -14,6 +14,7 @@
 // @require        https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/lib/mbimportstyle.js
 // @icon           https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/images/Musicbrainz_import_logo.png
 // ==/UserScript==
+
 const $getID = (str) => $("#MainContent_" + str),
     getIDText = (str) => $getID(str).text(),
     $getTDs = (node) => $(node).find('td'),
@@ -30,38 +31,21 @@ const rI = {
     releaseArtistList: new Set()
 };
 
-const makeArtistCredit = function(artistName) {
+const makeArtistCredit = function(name) {
     // TODO: Find a release with multiple artists on a track / handle multiple artist credits
 
-    const makeCredit = (name) => {
-        let creditObj = {
-                //credited_name: name,
-                joinphrase: ''
-            },
-            setArtist = (obj) => {
-                Object.assign(creditObj, {
-                    artist_mbid: obj.mbid,
-                    artist_name: obj.name
-                });
-            };
-
-        switch (name) {
-            case 'various_artists':
-                setArtist(MBImport.specialArtist('various_artists'));
-                break;
-            case 'various_artists':
-                setArtist(MBImport.specialArtist('unknown'));
-                break;
-            default:
-                setArtist({
-                    name: name,
-                    mbid: name in artistDB ? artistDB[name] : ''
-                });
-        }
-        return creditObj;
+    let creditObj = {
+        artist_name: name,
+        credited_name: name,
+        artist_mbid: name in artistDB ? artistDB[name] : '',
+        joinphrase: ''
     };
 
-    return [makeCredit(artistName)];
+    if (name === 'various_artists' || name === 'unknown') {
+        Object.assign(creditObj, MBImport.specialArtist(name));
+        creditObj.artist_mbid = creditObj.mbid;
+    }
+    return creditObj;
 };
 
 const makeLabelCredit = function() {
@@ -84,7 +68,7 @@ const buildTracklistArray = function() {
                 number: track[1],
                 title: track[2],
                 duration: track[4],
-                artist_credit: makeArtistCredit(track[3])
+                artist_credit: [makeArtistCredit(track[3])]
             });
         }
     }
@@ -94,7 +78,7 @@ const buildTracklistArray = function() {
 const buildReleaseObject = function() {
     return {
         title: rI.albumName,
-        artist_credit: makeArtistCredit(rI.releaseArtist),
+        artist_credit: [makeArtistCredit(rI.releaseArtist)],
         type: 'album',
         status: 'official',
         language: 'eng',
@@ -105,6 +89,7 @@ const buildReleaseObject = function() {
             link_type: 288
         }],
         discs: [{
+            format: 'CD',
             tracks: buildTracklistArray()
         }, ]
     };
@@ -137,7 +122,6 @@ $getID("gvTracks").find('tr:gt(0)').each(function() { // Process track rows
             const edit_note = MBImport.makeEditNote(rI.url, 'Arcadia', '', 'https://github.com/brianfreud/Userscripts/');
 
             var parameters = MBImport.buildFormParameters(releaseObj, edit_note);
-            debugger
             $('.fancybox').after('<br><br>' + MBImport.buildFormHTML(parameters));
         }
     });
