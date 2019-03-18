@@ -2,7 +2,7 @@
 /* globals artistDB, labelDB, MBImport */
 // @name           Import Arcadia releases to MusicBrainz
 // @description    Add a button to import Arcadia releases to MusicBrainz
-// @version        2019.3.17.0
+// @version        2019.3.17.1
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/arcadia_importer.user.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/arcadia_importer.user.js
@@ -119,7 +119,7 @@ $getID("gvTracks").find('tr:gt(0)').each(function() { // Process track rows
             const edit_note = MBImport.makeEditNote(rI.url, 'Arcadia', '', 'https://github.com/brianfreud/Userscripts/');
             
             var parameters = MBImport.buildFormParameters(releaseObj, edit_note);
-            console.log(MBImport.buildFormHTML(parameters));
+            $('.fancybox').after('<br>' + MBImport.buildFormHTML(parameters));
         }
     });
 });
