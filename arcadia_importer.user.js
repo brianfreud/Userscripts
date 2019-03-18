@@ -10,7 +10,7 @@
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/dict_artists.js
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/dict_labels.js
-// @require        https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/lib/mbimport.js
+// @require        https://raw.githubusercontent.com/brianfreud/musicbrainz-userscripts/friendlier-makeEditNote/lib/mbimport.js
 // @require        https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/lib/mbimportstyle.js
 // @icon           https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/images/Musicbrainz_import_logo.png
 // ==/UserScript==
@@ -116,7 +116,8 @@ $getID("gvTracks").find('tr:gt(0)').each(function() { // Process track rows
                 rI.releaseArtist = [...rI.releaseArtistList][0]; // set them as release artist.
             }
             const releaseObj = buildReleaseObject();
-            console.dir(releaseObj);
+            
+            console.log(MBImport.MakeEditNote(rI.url, 'Arcadia', '', 'https://github.com/brianfreud/Userscripts/')); //test
         }
     });
 });
