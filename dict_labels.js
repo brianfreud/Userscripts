@@ -6,7 +6,7 @@
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/dict_labels.js
 // ==/UserScript==
 
-const labelDB = {
+window.labelDB = {
         'Arcadia Cinematic': '1c9fc74a-6645-4977-b143-e2d60464536e',
         'Arcadia Classical Media Music': '',
         'Arcadia Cosmos': '',
