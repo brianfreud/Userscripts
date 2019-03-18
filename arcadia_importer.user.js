@@ -2,7 +2,7 @@
 /* globals         MBImport, $, buildReleaseObject */
 // @name           Import Arcadia releases to MusicBrainz
 // @description    Add a button to import Arcadia releases to MusicBrainz
-// @version        2019.3.17.4
+// @version        2019.3.17.6
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/arcadia_importer.user.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/arcadia_importer.user.js
