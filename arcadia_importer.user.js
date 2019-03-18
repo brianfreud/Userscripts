@@ -26,7 +26,7 @@ const rI = {
     label: getIDText("lbLibrary"),
     tracks: [],
     url: document.location.href,
-    releaseArtist: "various",
+    releaseArtist: "various_artists",
     remainingLookups: 0,
     releaseArtistList: new Set()
 };
@@ -117,7 +117,8 @@ $getID("gvTracks").find('tr:gt(0)').each(function() { // Process track rows
             }
             const releaseObj = buildReleaseObject();
             
-            console.log(MBImport.MakeEditNote(rI.url, 'Arcadia', '', 'https://github.com/brianfreud/Userscripts/')); //test
+            console.log(MBImport.makeEditNote(rI.url, 'Arcadia','','https://github.com/brianfreud/Userscripts/')); //test
+            console.log(MBImport.buildFormHTML(releaseObj)); //test
         }
     });
 });
