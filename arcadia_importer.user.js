@@ -137,7 +137,7 @@ $getID("gvTracks").find('tr:gt(0)').each(function() { // Process track rows
             const edit_note = MBImport.makeEditNote(rI.url, 'Arcadia', '', 'https://github.com/brianfreud/Userscripts/');
 
             var parameters = MBImport.buildFormParameters(releaseObj, edit_note);
-            $('.fancybox').after('<br>' + MBImport.buildFormHTML(parameters));
+            $('.fancybox').after('<br><br>' + MBImport.buildFormHTML(parameters));
         }
     });
 });
