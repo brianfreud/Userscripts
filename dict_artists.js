@@ -6,7 +6,7 @@
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/dict_artists.js
 // ==/UserScript==
 
-const artistDB = {
+window.artistDB = {
         'Alexander Blechinger': 'e77a8ee6-d6b8-4f36-992b-157f5bc02c45',
         'Art Luft': '959af96a-37c4-4b30-840b-4d91f5b11aff',
         'Bruce Revell': '81fddc11-f4e8-484d-b7c7-4e92de81f38a',
