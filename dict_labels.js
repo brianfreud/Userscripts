@@ -1,3 +1,11 @@
+// ==UserScript==
+// @name           Label dictionary
+// @version        2019.3.17.1
+// @namespace      https://github.com/brianfreud
+// @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/dict_labels.js
+// @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/dict_labels.js
+// ==/UserScript==
+
 const labelDB = {
         'Arcadia Cinematic': '1c9fc74a-6645-4977-b143-e2d60464536e',
         'Arcadia Classical Media Music': '',
