@@ -1,5 +1,5 @@
 // ==UserScript==
-/* globals artistDB, labelDB, MBImport, $ */
+/* globals         MBImport, $, buildReleaseObject */
 // @name           Import Arcadia releases to MusicBrainz
 // @description    Add a button to import Arcadia releases to MusicBrainz
 // @version        2019.3.17.4
@@ -9,6 +9,7 @@
 // @include        http*://*.arcadiamusic.com/music/album/*
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/dict_artists.js
+// @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/utility_functions.js
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/dict_labels.js
 // @require        https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/lib/mbimport.js
 // @require        https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/lib/mbimportstyle.js
@@ -29,69 +30,6 @@ const rI = {
     releaseArtist: "various_artists",
     remainingLookups: 0,
     releaseArtistList: new Set()
-};
-
-const makeArtistCredit = function(name) {
-    // TODO: Find a release with multiple artists on a track / handle multiple artist credits
-
-    let creditObj = {
-        artist_name: name,
-        credited_name: name,
-        mbid: name in artistDB ? artistDB[name] : '',
-        joinphrase: ''
-    };
-
-    if (name === 'various_artists' || name === 'unknown') {
-        Object.assign(creditObj, MBImport.specialArtist(name));
-    }
-    return creditObj;
-};
-
-const makeLabelCredit = function() {
-    const label = getIDText("lbLibrary");
-    return [{
-        catno: getIDText("lblCdNo"),
-        mbid: label in labelDB ? labelDB[label] : '',
-        name: label
-    }];
-};
-
-const buildTracklistArray = function() {
-    let trackArray = [];
-
-    rI.tracks = [...new Set(rI.tracks)];
-
-    for (let track of rI.tracks) {
-        if (track !== undefined) {
-            trackArray.push({
-                number: track[1],
-                title: track[2],
-                duration: track[4],
-                artist_credit: [makeArtistCredit(track[3])]
-            });
-        }
-    }
-    return trackArray;
-};
-
-const buildReleaseObject = function() {
-    return {
-        title: rI.albumName,
-        artist_credit: [makeArtistCredit(rI.releaseArtist)],
-        type: 'album',
-        status: 'official',
-        language: 'eng',
-        script: 'Latn',
-        labels: makeLabelCredit(rI.label),
-        urls: [{
-            url: rI.url,
-            link_type: 288
-        }],
-        discs: [{
-            format: 'CD',
-            tracks: buildTracklistArray()
-        }, ]
-    };
 };
 
 $getID("gvTracks").find('tr:gt(0)').each(function() { // Process track rows
