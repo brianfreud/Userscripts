@@ -74,7 +74,7 @@ const buildTracklistArray = function() {
 };
 
 const buildReleaseObject = function() {
-    const release = {
+    return {
         title: rI.albumName,
         artist_credit: makeArtistCredit(rI.releaseArtist),
         type: 'album',
@@ -90,8 +90,6 @@ const buildReleaseObject = function() {
             tracks: buildTracklistArray()
         }, ]
     };
-
-    console.dir(release);
 };
 
 $getID("gvTracks").find('tr:gt(0)').each(function() { // Process track rows
@@ -117,7 +115,8 @@ $getID("gvTracks").find('tr:gt(0)').each(function() { // Process track rows
             if (rI.releaseArtistList.size === 1) { // If only one artist for release's tracks,
                 rI.releaseArtist = [...rI.releaseArtistList][0]; // set them as release artist.
             }
-            buildReleaseObject();
+            const releaseObj = buildReleaseObject();
+            console.dir(releaseObj);
         }
     });
 });
