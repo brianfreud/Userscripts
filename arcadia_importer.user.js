@@ -2,11 +2,11 @@
 /* globals         MBImport, $, buildReleaseObject */
 // @name           Import Arcadia releases to MusicBrainz
 // @description    Add a button to import Arcadia releases to MusicBrainz
-// @version        2019.3.17.6
+// @version        2019.3.17.7
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/arcadia_importer.user.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/arcadia_importer.user.js
-// @include        http*://*.arcadiamusic.com/music/album/*
+// @include        http*://usa.arcadiamusic.com/music/album/*
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/dict_artists.js
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/utility_functions.js
@@ -22,7 +22,7 @@ const $getID = (str) => $("#MainContent_" + str),
     getTDText = ($nodes, i) => $.trim($nodes.eq(i).text());
 
 const rI = {
-    albumName: getIDText("lblAlbumTitle"),
+    releaseName: getIDText("lblAlbumTitle"),
     catNum: getIDText("lblCdNo"),
     label: getIDText("lbLibrary"),
     tracks: [],
@@ -55,9 +55,8 @@ $getID("gvTracks").find('tr:gt(0)').each(function() { // Process track rows
             if (rI.releaseArtistList.size === 1) { // If only one artist for release's tracks,
                 rI.releaseArtist = [...rI.releaseArtistList][0]; // set them as release artist.
             }
-            const releaseObj = buildReleaseObject();
+            const releaseObj = buildReleaseObject(rI);
             const edit_note = MBImport.makeEditNote(rI.url, 'Arcadia', '', 'https://github.com/brianfreud/Userscripts/');
-
             var parameters = MBImport.buildFormParameters(releaseObj, edit_note);
             $('.fancybox').after('<br><br>' + MBImport.buildFormHTML(parameters));
         }
