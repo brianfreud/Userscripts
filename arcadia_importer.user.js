@@ -2,7 +2,7 @@
 /* globals artistDB, labelDB, MBImport, $ */
 // @name           Import Arcadia releases to MusicBrainz
 // @description    Add a button to import Arcadia releases to MusicBrainz
-// @version        2019.3.17.3
+// @version        2019.3.17.4
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/arcadia_importer.user.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/arcadia_importer.user.js
@@ -37,13 +37,12 @@ const makeArtistCredit = function(name) {
     let creditObj = {
         artist_name: name,
         credited_name: name,
-        artist_mbid: name in artistDB ? artistDB[name] : '',
+        mbid: name in artistDB ? artistDB[name] : '',
         joinphrase: ''
     };
 
     if (name === 'various_artists' || name === 'unknown') {
         Object.assign(creditObj, MBImport.specialArtist(name));
-        creditObj.artist_mbid = creditObj.mbid;
     }
     return creditObj;
 };
