@@ -17,7 +17,7 @@ window.labelDB = {
         'Arcadia Esovision': '',
         'Arcadia Galaxy Music Lexicon': '',
         'Arcadia Global Authentic Music': '',
-        'Arcadia Hollywood': '',
+        'Arcadia Hollywood': '0251b61b-7545-4bc0-b487-975ef6db2857',
         'Arcadia Jazz Line': '',
         'Arcadia Jingle Bank': '',
         'Arcadia Less-Is-More': '',
