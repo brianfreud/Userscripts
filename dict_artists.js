@@ -1,12 +1,13 @@
 // ==UserScript==
+/* globals         ß */
 // @name           Artist dictionary
-// @version        2019.3.17.2
+// @version        2019.3.18.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/dict_artists.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/dict_artists.js
 // ==/UserScript==
 
-window.artistDB = {
+ß.artistDB = {
         'Alexander Bestereimer': '55d15002-c636-4400-81cb-9ce40038d999',
         'Alexander Blechinger': 'e77a8ee6-d6b8-4f36-992b-157f5bc02c45',
         'Ambros Seelos': '1cc6d4c4-9739-4cce-914a-72ac908e014a',
