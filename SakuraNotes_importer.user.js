@@ -2,7 +2,7 @@
 /* globals         MBImport, $, ß */
 // @name           Import SakuraNotes release listings to MusicBrainz
 // @description    Add a button to import SakuraNotes release listings to MusicBrainz
-// @version        2019.3.18.1
+// @version        2019.3.18.2
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/SakuraNotes_importer.user.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/SakuraNotes_importer.user.js
@@ -64,7 +64,7 @@ $('.table').find('tr:gt(0)')
                 }
                 console.dir(ß.data);
 
-                const releaseObj = ß.buildReleaseObject();
+                const releaseObj = ß.buildReleaseObject('Digital Media');
                 const edit_note = MBImport.makeEditNote(ß.data.url, 'SakuraNotes', '', 'https://github.com/brianfreud/Userscripts/');
 
                 var parameters = MBImport.buildFormParameters(releaseObj, edit_note);
