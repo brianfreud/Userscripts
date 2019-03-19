@@ -1,7 +1,7 @@
 // ==UserScript==
 /* globals MBImport */
 // @name           Utility functions
-// @version        2019.3.18.6
+// @version        2019.3.18.7
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
@@ -72,6 +72,14 @@ const ß = {
                 tracks: ß.buildTracklistArray()
             }, ]
         };
+    },
+
+    toTitleCase: (str) => {
+        return str
+            .toLowerCase()
+            .split(' ')
+            .map(word => word.substr(0, 1).toUpperCase() + word.substr(1, word.length))
+            .join(' ');
     },
 
     getIDText: (str) => ß.$getID(str).text(),
