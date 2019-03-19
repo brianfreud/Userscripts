@@ -1,38 +1,53 @@
 // ==UserScript==
 /* globals MBImport */
 // @name           Utility functions
-// @version        2019.3.19.0
+// @version        2019.3.19.1
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // ==/UserScript==
+
 const ß = {
 
     data: {},
 
-    buildArtistCredit: (name) => {
-        // TODO: Find a release with multiple artists on a track / handle multiple artist credits
+    buildArtistCredit: (names) => {
+        let creditArr = [];
 
-        let creditObj = {
-            artist_name: name,
-            credited_name: name,
-            mbid: name in ß.artistDB ? ß.artistDB[name] : '',
-            joinphrase: ''
-        };
-
-        if (name === 'various_artists' || name === 'unknown') {
-            Object.assign(creditObj, MBImport.specialArtist(name));
+        for (let [i, name] of [...names].entries()) {
+            if (name === 'various_artists' || name === 'unknown') {
+                creditArr.push(MBImport.specialArtist(name));
+            } else {
+                let creditObj = {
+                    artist_name: ß.toTitleCase(name),
+                    mbid: name.toLowerCase() in ß.artistDB ? ß.artistDB[name.toLowerCase()] : ''
+                };
+                if (names.length > 1) {
+                    if (names.length - 1 !== i) {
+                        creditObj.joinphrase = names.length - 2 === i ? ' & ' : ', ';
+                    }
+                }
+                creditArr.push(creditObj);
+            }
         }
-        return creditObj;
+
+        return creditArr;
     },
 
     buildLabelCredit: () => {
-        const label = ß.labelDB.filter(p => p.name.toLowerCase() == ß.data.label); // Find any label's specific object, if it is in the labelDB array
-        return [{
-            catno: ß.data.catNum,
-            mbid: !!label.length ? label[0].mbid : '',
-            name: label[0].name
-        }];
+        const label = ß.labelDB.filter(p => p.name == ß.data.label.toLowerCase()); // Find any label's specific object, if it is in the labelDB array
+        if (label === undefined) {
+            return [{
+                name: ß.toTitleCase(label)
+            }];
+        } else {
+            return [{
+                catno: ß.data.catNum,
+                country: label[0].country,
+                mbid: !!label.length ? label[0].mbid : '',
+                name: label[0].name
+            }];
+        }
     },
 
     buildTracklistArray: () => {
@@ -46,7 +61,7 @@ const ß = {
                     number: track[1],
                     title: track[2],
                     duration: track[4],
-                    artist_credit: [ß.buildArtistCredit(track[3])]
+                    artist_credit: ß.buildArtistCredit(track[3])
                 });
             }
         }
@@ -56,7 +71,7 @@ const ß = {
     buildReleaseObject: (format = 'CD') => {
         return {
             title: ß.data.releaseName,
-            artist_credit: [ß.buildArtistCredit(ß.data.releaseArtist)],
+            artist_credit: ß.buildArtistCredit(ß.data.releaseArtist),
             type: 'album',
             status: 'official',
             language: 'eng',
