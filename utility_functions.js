@@ -1,7 +1,7 @@
 // ==UserScript==
 /* globals MBImport */
 // @name           Utility functions
-// @version        2019.3.18.4
+// @version        2019.3.18.5
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
@@ -31,8 +31,8 @@ const ß = {
         const label = ß.labelDB.filter(p => p.name == ß.data.label); // Find any label's specific object, if it is in the labelDB array
         return [{
             catno: ß.data.catNum,
-            mbid: !!label.length ? label.mbid : '',
-            name: label.name
+            mbid: !!label.length ? label[0].mbid : '',
+            name: label[0].name
         }];
     },
 
@@ -82,7 +82,7 @@ const ß = {
 
     buildImportTools: (prefix = '') => {
         Object.assign(ß, {
-            $getID: (str) => (`#${prefix}${str}`),
+            $getID: (str) => $(`#${prefix}${str}`),
         });
     }
 };
