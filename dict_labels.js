@@ -1,7 +1,7 @@
 // ==UserScript==
 /* globals         ß */
 // @name           Label dictionary
-// @version        2019.3.18.1
+// @version        2019.3.19.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/dict_labels.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/dict_labels.js
