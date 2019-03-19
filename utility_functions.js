@@ -1,7 +1,7 @@
 // ==UserScript==
 /* globals MBImport */
 // @name           Utility functions
-// @version        2019.3.18.3
+// @version        2019.3.18.4
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
@@ -74,12 +74,15 @@ const ß = {
         };
     },
 
+    getIDText: (str) => ß.$getID(str).text(),
+
+    $getTDs: (node) => $(node).find('td'),
+
+    getTDText: ($nodes, i) => $.trim($nodes.eq(i).text()),
+
     buildImportTools: (prefix = '') => {
         Object.assign(ß, {
             $getID: (str) => (`#${prefix}${str}`),
-            getIDText: (str) => ß.$getID(str).text(),
-            $getTDs: (node) => $(node).find('td'),
-            getTDText: ($nodes, i) => $.trim($nodes.eq(i).text())
         });
     }
 };
