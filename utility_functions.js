@@ -7,6 +7,8 @@
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // ==/UserScript==
 
+const importTools = {};
+
 window.buildArtistCredit = (name) => {
         // TODO: Find a release with multiple artists on a track / handle multiple artist credits
 
