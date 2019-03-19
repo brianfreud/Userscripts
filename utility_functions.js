@@ -6,7 +6,6 @@
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // ==/UserScript==
-
 const ß = {
 
     data: {},
@@ -78,8 +77,15 @@ const ß = {
         return str
             .toLowerCase()
             .split(' ')
-            .map(word => word.substr(0, 1).toUpperCase() + word.substr(1,))
+            .map(word => word.substr(0, 1).toUpperCase() + word.substr(1))
             .join(' ');
+    },
+
+    unSortname: (str) => { // Turns "Jones, Bob" back into "Bob Jones"
+        let name = $(this).text()
+            .split(",")
+            .map(a => a.trim());
+        return [name.splice(-1), name].flat().join(" ");
     },
 
     getIDText: (str) => ß.$getID(str).text(),
