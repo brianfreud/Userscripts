@@ -28,7 +28,7 @@ const ß = {
     },
 
     buildLabelCredit: () => {
-        const label = ß.labelDB.filter(p => p.name == ß.data.label); // Find any label's specific object, if it is in the labelDB array
+        const label = ß.labelDB.filter(p => p.name.toLowerCase() == ß.data.label); // Find any label's specific object, if it is in the labelDB array
         return [{
             catno: ß.data.catNum,
             mbid: !!label.length ? label[0].mbid : '',
