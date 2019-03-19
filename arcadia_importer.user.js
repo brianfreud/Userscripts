@@ -22,7 +22,7 @@ Object.assign(ß.data, {
     artistList: new Set(),
     catNum: ß.getIDText("lblCdNo"),
     label: ß.getIDText("lbLibrary"),
-    releaseArtist: "various_artists",
+    releaseArtist: ["various_artists"],
     releaseName: ß.getIDText("lblAlbumTitle"),
     remaining: 0,
     tracks: [],
@@ -38,7 +38,7 @@ Object.assign(ß.data, {
         'http://usa.arcadiamusic.com' + $nodes.eq(0).find('a').attr('href'),
         ß.getTDText($nodes, 1), // Track number
         ß.getTDText($nodes, 2), // Track title
-        "unknown", // Default track artist
+        ["unknown"], // Default track artist
         ß.getTDText($nodes, 3) // Track duration
     ];
     ß.data.remaining++;
