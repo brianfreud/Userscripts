@@ -1,5 +1,4 @@
 // ==UserScript==
-/* globals         MBImport, $, buildReleaseObject */
 // @name           Import SakuraNotes release listings to MusicBrainz
 // @description    Add a button to import SakuraNotes release listings to MusicBrainz
 // @version        2019.3.18.0
