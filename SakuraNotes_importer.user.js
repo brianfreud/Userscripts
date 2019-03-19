@@ -4,8 +4,8 @@
 // @description    Add a button to import SakuraNotes release listings to MusicBrainz
 // @version        2019.3.18.0
 // @namespace      https://github.com/brianfreud
-// @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/SakuraNotes_importer.js
-// @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/SakuraNotes_importer.js
+// @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/SakuraNotes_importer.user.js
+// @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/SakuraNotes_importer.user.js
 // @include        http*://www.sakuranotes.jp/Disc*
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/dict_artists.js
