@@ -1,21 +1,23 @@
 // ==UserScript==
-/* globals artistDB, labelDB, MBImport */
+/* globals MBImport */
 // @name           Utility functions
-// @version        2019.3.18.1
+// @version        2019.3.18.3
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // ==/UserScript==
 
-const importTools = {};
+const ß = {
 
-window.buildArtistCredit = (name) => {
+    data: {},
+
+    buildArtistCredit: (name) => {
         // TODO: Find a release with multiple artists on a track / handle multiple artist credits
 
         let creditObj = {
             artist_name: name,
             credited_name: name,
-            mbid: name in artistDB ? artistDB[name] : '',
+            mbid: name in ß.artistDB ? ß.artistDB[name] : '',
             joinphrase: ''
         };
 
@@ -24,50 +26,60 @@ window.buildArtistCredit = (name) => {
         }
         return creditObj;
     },
-    
-    buildLabelCredit = (infoObj) => {
-        const label = infoObj.label;
+
+    buildLabelCredit: () => {
+        const label = ß.labelDB.filter(p => p.name == ß.data.label); // Find any label's specific object, if it is in the labelDB array
         return [{
-            catno: infoObj.catNum,
-            mbid: label in labelDB ? labelDB[label] : '',
-            name: label
+            catno: ß.data.catNum,
+            mbid: !!label.length ? label.mbid : '',
+            name: label.name
         }];
     },
-    
-    buildTracklistArray = (infoObj) => {
+
+    buildTracklistArray: () => {
         let trackArray = [];
 
-        infoObj.tracks = [...new Set(infoObj.tracks)];
+        ß.data.tracks = [...new Set(ß.data.tracks)];
 
-        for (let track of infoObj.tracks) {
+        for (let track of ß.data.tracks) {
             if (track !== undefined) {
                 trackArray.push({
                     number: track[1],
                     title: track[2],
                     duration: track[4],
-                    artist_credit: [buildArtistCredit(track[3])]
+                    artist_credit: [ß.buildArtistCredit(track[3])]
                 });
             }
         }
         return trackArray;
     },
-    
-    buildReleaseObject = (infoObj, format = 'CD') => {
+
+    buildReleaseObject: (format = 'CD') => {
         return {
-            title: infoObj.releaseName,
-            artist_credit: [buildArtistCredit(infoObj.releaseArtist)],
+            title: ß.data.releaseName,
+            artist_credit: [ß.buildArtistCredit(ß.data.releaseArtist)],
             type: 'album',
             status: 'official',
             language: 'eng',
             script: 'Latn',
-            labels: buildLabelCredit(infoObj),
+            labels: ß.buildLabelCredit(),
             urls: [{
-                url: infoObj.url,
+                url: ß.data.url,
                 link_type: 288
             }],
             discs: [{
                 format: format,
-                tracks: buildTracklistArray(infoObj)
+                tracks: ß.buildTracklistArray(ß.data)
             }, ]
         };
-    };
+    },
+
+    buildImportTools: (prefix = '') => {
+        Object.assign(ß, {
+            $getID: (str) => (`#${prefix}${str}`),
+            getIDText: (str) => ß.$getID(str).text(),
+            $getTDs: (node) => $(node).find('td'),
+            getTDText: ($nodes, i) => $.trim($nodes.eq(i).text())
+        });
+    }
+};
