@@ -69,7 +69,7 @@ const ß = {
             }],
             discs: [{
                 format: format,
-                tracks: ß.buildTracklistArray(ß.data)
+                tracks: ß.buildTracklistArray()
             }, ]
         };
     },
