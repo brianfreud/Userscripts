@@ -18,48 +18,58 @@
 
 ß.buildImportTools('ctl00_body_');
 
-ß.buildImportTools('MainContent_');
-
 Object.assign(ß.data, {
     artistList: new Set(),
     catNum: ß.getIDText("DiscNoLabel"),
     label: ß.getIDText("LabelLink"),
-    releaseArtist: "various_artists",
+    releaseArtist: ["various_artists"],
     releaseName: ß.toTitleCase(ß.getIDText("DiscNameLabel")),
     remaining: 0,
     tracks: [],
     url: document.location.href
 });
 
-$('.table')
-.find('tr:gt(0)')
-.each(function() { // Process track rows
-    const $nodes = ß.$getTDs(this);
+$('#btn-promotion').after($('<div class="btn" id="importWorking">Working...</div>'));
 
-    ß.data.tracks[ß.getTDText($nodes, 1)] = [
-        'https://www.sakuranotes.jp/' + $nodes.eq(2).find('a').attr('href'),
-        ß.getTDText($nodes, 1).match(/^\d+/)[0], // Track number
-        ß.toTitleCase(ß.getTDText($nodes, 2)), // Track title
-        "unknown", // Default track artist
-        ß.getTDText($nodes, 1).match(/\((\d\d\:\d\d)\)/)[1] // Track duration
-    ];
-    ß.data.remaining++;
+$('.table').find('tr:gt(0)')
+    .each(function() { // Process track rows
+        const $nodes = ß.$getTDs(this),
+            trackNum = ß.getTDText($nodes, 1).match(/^\d+/)[0];
 
-    $.get(ß.data.tracks[ß.getTDText($nodes, 1)][0], function(data) {
-        const artist = $(data).find("#MainContent_lblComposer").text();
+        ß.data.tracks[trackNum] = [
+            'https://www.sakuranotes.jp' + $nodes.eq(2).find('a').attr('href').substr(1),
+            trackNum,
+            ß.toTitleCase(ß.getTDText($nodes, 2)), // Track title
+            "unknown", // Default track artist
+            ß.getTDText($nodes, 1).match(/\((\d\d\:\d\d)\)/)[1] // Track duration
+        ];
+        ß.data.remaining++;
 
-        ß.data.tracks[ß.getTDText($nodes, 1)][3] = artist;
-        ß.data.artistList.add(artist);
-        ß.data.remaining--;
-        if (ß.data.remaining === 0) { // Check if all async actions have completed
-            if (ß.data.artistList.size === 1) { // If only one artist for release's tracks,
-                ß.data.releaseArtist = [...ß.data.artistList][0]; // set them as release artist.
+        $.get(ß.data.tracks[trackNum][0], function(data) {
+            let artistArr = [];
+            $(data).find('.table')
+                .find('tr:first td>a')
+                .map(function() {
+                    artistArr.push($(this).text());
+                });
+            artistArr = artistArr.map(name => ß.unSortname(name.toLowerCase()));
+            ß.data.artistList.add(artistArr.map(a => ß.toTitleCase(a)).join('&'));
+
+            ß.data.tracks[trackNum][3] = artistArr;
+            ß.data.remaining--;
+
+            if (ß.data.remaining === 0) { // Check if all async actions have completed
+                if (ß.data.artistList.size === 1) { // If only one artist for release's tracks,
+                    ß.data.releaseArtist = artistArr.map(a => ß.toTitleCase(a)); // set them as release artist.
+                }
+                console.dir(ß.data);
+
+                const releaseObj = ß.buildReleaseObject();
+                const edit_note = MBImport.makeEditNote(ß.data.url, 'SakuraNotes', '', 'https://github.com/brianfreud/Userscripts/');
+
+                var parameters = MBImport.buildFormParameters(releaseObj, edit_note);
+                $('#btn-promotion').after($(MBImport.buildFormHTML(parameters)).addClass('btn'));
+                $('#importWorking').remove();
             }
-            const releaseObj = ß.buildReleaseObject();
-            const edit_note = MBImport.makeEditNote(ß.data.url, 'Arcadia', '', 'https://github.com/brianfreud/Userscripts/');
-console.dir(releaseObj);
-            var parameters = MBImport.buildFormParameters(releaseObj, edit_note);
-            $('.fancybox').after('<br><br>' + MBImport.buildFormHTML(parameters));
-        }
+        });
     });
-});
