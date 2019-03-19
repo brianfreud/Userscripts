@@ -82,8 +82,7 @@ const ß = {
     },
 
     unSortname: (str) => { // Turns "Jones, Bob" back into "Bob Jones"
-        let name = $(this).text()
-            .split(",")
+        let name = str.split(",")
             .map(a => a.trim());
         return [name.splice(-1), name].flat().join(" ");
     },
