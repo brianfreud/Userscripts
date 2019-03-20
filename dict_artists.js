@@ -1,7 +1,7 @@
 // ==UserScript==
 /* globals         ß */
 // @name           Artist dictionary
-// @version        2019.3.19.0
+// @version        2019.3.19.1
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/dict_artists.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/dict_artists.js
