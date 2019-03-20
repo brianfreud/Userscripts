@@ -1,7 +1,7 @@
 // ==UserScript==
 /* globals MBImport */
 // @name           Utility functions
-// @version        2019.3.19.1
+// @version        2019.3.19.2
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
@@ -44,7 +44,7 @@ const ß = {
             return [{
                 catno: ß.data.catNum,
                 country: label[0].country,
-                mbid: !!label.length ? label[0].mbid : '',
+                mbid: label[0].mbid,
                 name: label[0].name
             }];
         }
@@ -69,7 +69,7 @@ const ß = {
     },
 
     buildReleaseObject: (format = 'CD') => {
-        return {
+        let releaseObj = {
             title: ß.data.releaseName,
             artist_credit: ß.buildArtistCredit(ß.data.releaseArtist),
             type: 'album',
@@ -86,6 +86,8 @@ const ß = {
                 tracks: ß.buildTracklistArray()
             }, ]
         };
+        releaseObj.country = releaseObj.labels[0].country;
+        return releaseObj;
     },
 
     toTitleCase: (str) => {
