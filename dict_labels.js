@@ -1,7 +1,7 @@
 // ==UserScript==
 /* globals         ß */
 // @name           Label dictionary
-// @version        2019.3.19.0
+// @version        2019.3.19.1
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/dict_labels.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/dict_labels.js
@@ -852,7 +852,13 @@
     , {
         name: 'x-series'
         , country: 'GB'
-        , mbid: ''
+        , mbid: '24f34b1b-b453-4c53-bc84-aa3d5c6e8386'
         , prefix: 'XCD'
+    }
+    , {
+        name: 'ultimate classix'
+        , country: 'GB'
+        , mbid: '49b40560-dc37-4dda-87b0-ad4019df47ce'
+        , prefix: 'XCL'
     }
 ];
