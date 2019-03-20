@@ -2,12 +2,13 @@
 /* globals         MBImport, $, ß */
 // @name           Import SakuraNotes release listings to MusicBrainz
 // @description    Add a button to import SakuraNotes release listings to MusicBrainz
-// @version        2019.3.18.2
+// @version        2019.3.19.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/SakuraNotes_importer.user.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/SakuraNotes_importer.user.js
 // @include        http*://www.sakuranotes.jp/Disc*
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
+// @require        http://creativecouple.github.io/jquery-timing/jquery-timing.js?v=20141012-210756
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/utility_functions.js
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/dict_artists.js
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/dict_labels.js
@@ -32,7 +33,7 @@ Object.assign(ß.data, {
 $('#btn-promotion').after($('<div class="btn" id="importWorking">Working...</div>'));
 
 $('.table').find('tr:gt(0)')
-    .each(function() { // Process track rows
+    .each($).wait(100, function() { // Process track rows, try to avoid flooding the server with requests
         const $nodes = ß.$getTDs(this),
             trackNum = ß.getTDText($nodes, 1).match(/^\d+/)[0];
 
