@@ -1,7 +1,7 @@
 // ==UserScript==
 /* globals MBImport */
 // @name           Utility functions
-// @version        2019.3.19.2
+// @version        2019.3.21.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
@@ -104,6 +104,10 @@ const ß = {
         return [name.splice(-1), name].flat().join(" ");
     },
 
+    unSortnameArray: (arr) => { // Turns ["Jones, Bob"] into ["bob jones"]
+        return arr.map(name => ß.unSortname(name.toLowerCase()));
+    };
+    
     getIDText: (str) => ß.$getID(str).text(),
 
     $getTDs: (node) => $(node).find('td'),
