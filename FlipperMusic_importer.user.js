@@ -2,7 +2,7 @@
 /* globals         MBImport, $, ß */
 // @name           Import FlipperMusic release listings to MusicBrainz
 // @description    Add a button to import FlipperMusic release listings to MusicBrainz
-// @version        2019.3.21.1
+// @version        2019.3.21.2
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/FlipperMusic_importer.user.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/FlipperMusic_importer.user.js
@@ -43,7 +43,6 @@ let processRelease = (data) => {
                 success: processTrack
             });
         },
-          
         setTrack = (info, parentTitle) => {
             ß.data.tracks[info.br_traccia] = [ // Set track info
                 info.br_id, // fM track ID number
@@ -62,7 +61,6 @@ let processRelease = (data) => {
                 }
             }
         },
-          
         processTrack = (data) => {
             $('#importCounter').text(--ß.data.remaining);
 
@@ -82,8 +80,6 @@ let processRelease = (data) => {
         ß.data.totalTracks = ß.data.totalTracks + parseInt(track.br_num_alternative, 10);
         setTrack(track);
         getTrack(track.br_id);
-      
-        if (ß.data.remaining === 0) console.dir(ß);
     }
 };
 
@@ -97,3 +93,5 @@ $.getJSON(`https://www.flippermusic.it/wp-content/themes/Divi-child/query.php?` 
 
         processRelease(data);
     });
+
+console.dir(ß);
