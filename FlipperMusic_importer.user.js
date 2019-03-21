@@ -2,7 +2,7 @@
 /* globals         MBImport, $, ß */
 // @name           Import FlipperMusic release listings to MusicBrainz
 // @description    Add a button to import FlipperMusic release listings to MusicBrainz
-// @version        2019.3.21.3
+// @version        2019.3.21.4
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/FlipperMusic_importer.user.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/FlipperMusic_importer.user.js
@@ -16,7 +16,6 @@
 // @require        https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/lib/mbimportstyle.js
 // @icon           https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/images/Musicbrainz_import_logo.png
 // ==/UserScript==
-
 ß.data.fM_ID = document.URL.match(/\d+/)[0];
 
 let processRelease = (data) => {
@@ -44,7 +43,7 @@ let processRelease = (data) => {
             });
         },
 
-        setTrack = (info, parentTitle) => {
+        setTrack = (info, parent) => {
             ß.data.tracks[info.br_traccia] = [ // Set track info
                 info.br_id, // fM track ID number
                 info.br_traccia, // Track number
@@ -53,18 +52,8 @@ let processRelease = (data) => {
                 Math.round(parseFloat(info.br_durata_sec)) // Track duration
             ];
 
-            if ('br_titolo_mod' in info) {
-
-                if (parentTitle == info.br_versione) {
-                    ß.data.tracks[info.br_traccia][2] = info.br_titolo_mod;
-                } else {
-                    ß.data.tracks[info.br_traccia][2] = `${parentTitle} (${info.br_versione})`;
-                }
-            }
-
-            if (ß.data.remaining === 0) {
-                postProcessArtists();
-                console.dir(ß);
+            if ('br_versione' in info) {
+                ß.data.tracks[info.br_traccia][2] = (parent == info.br_versione) ? parent : `${parent} (${info.br_versione})`;
             }
         },
 
@@ -80,17 +69,25 @@ let processRelease = (data) => {
             let trackNum = ß.data.tracks.findIndex(x => x !== undefined && x[0] === data.traccia.br_ids);
 
             ß.data.tracks[trackNum][3] = data.traccia.br_autori;
+
+            if (!--ß.data.remaining) {
+				postProcessArtists();
+			}
         },
 
         postProcessArtists = () => {
-            ß.data.tracks.forEach((value, i) => {
-                let artistArr = ß.data.tracks[i][3].split(/\s[\-\/]\s/);
-                ß.data.tracks[i][3] = ß.unSortnameArray(artistArr);
+            ß.data.tracks = ß.data.tracks.map(track => {
+                let artistArr = track[3].split(/\s[\-\/]\s/);
+                return [track[0], track[1], track[2], ß.unSortnameArray(artistArr), track[4]];
             });
+            console.dir(ß.data)
         };
+
 
     for (let track of data.tracce) {
         ß.data.totalTracks = ß.data.totalTracks + parseInt(track.br_num_alternative, 10);
+
+        ß.data.remaining = ß.data.remaining + 2;
         setTrack(track);
         getTrack(track.br_id);
     }
@@ -100,8 +97,6 @@ let processRelease = (data) => {
 $.getJSON(`https://www.flippermusic.it/wp-content/themes/Divi-child/query.php?` +
     `op=listaTracceCDInfo&traccePerPagina=2000&pagina=1&idCD=${ß.data.fM_ID}`,
     function(data) {
-        ß.data.remaining = 2 * data.tracce.length;
-
         $('#importCounter').text(ß.data.remaining);
 
         processRelease(data);
