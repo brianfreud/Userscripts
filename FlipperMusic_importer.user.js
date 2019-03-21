@@ -2,7 +2,7 @@
 /* globals         MBImport, $, ß */
 // @name           Import FlipperMusic release listings to MusicBrainz
 // @description    Add a button to import FlipperMusic release listings to MusicBrainz
-// @version        2019.3.21.0
+// @version        2019.3.21.1
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/FlipperMusic_importer.user.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/FlipperMusic_importer.user.js
@@ -75,7 +75,7 @@ let processRelease = (data) => {
             let trackNum = ß.data.tracks.findIndex(x => x !== undefined && x[0] === data.traccia.br_ids),
                 artistArr = data.traccia.br_autori.split(/\s[\-\/]\s/);
 
-            ß.data.tracks[trackNum][3] = ß.unSortnameArray(splitArtist(artistArr));
+            ß.data.tracks[trackNum][3] = ß.unSortnameArray(artistArr);
         };
 
     for (let track of data.tracce) {
