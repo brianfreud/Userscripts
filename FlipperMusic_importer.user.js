@@ -2,7 +2,7 @@
 /* globals         MBImport, $, ß */
 // @name           Import FlipperMusic release listings to MusicBrainz
 // @description    Add a button to import FlipperMusic release listings to MusicBrainz
-// @version        2019.3.21.5
+// @version        2019.3.22.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/FlipperMusic_importer.user.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/FlipperMusic_importer.user.js
@@ -50,7 +50,7 @@
                 info.br_traccia, // Track number
                 info.br_titolo, // Track title
                 info.br_autori || "unknown", // track artist
-                Math.round(parseFloat(info.br_durata_sec)) // Track duration
+                ß.formatSeconds(Math.round(parseFloat(info.br_durata_sec))) // Track duration
             ];
 
             if ('br_versione' in info) {
