@@ -30,6 +30,11 @@
     mbid: 'fb53ec78-e6a3-4eda-8259-b37aef515437',
     prefix: 'ATN'
 }, {
+    name: 'abaco music',
+    country: '',
+    mbid: 'd595bbf8-1be3-41d1-83f8-c871b39082d2',
+    prefix: 'AB'
+}, {
     name: 'absolute music',
     country: 'GB',
     mbid: 'ba3037fb-65dc-42ad-9eb3-71e0014205f5',
