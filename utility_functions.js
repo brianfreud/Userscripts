@@ -1,7 +1,7 @@
 // ==UserScript==
 /* globals MBImport, $ */
 // @name           Utility functions
-// @version        2019.3.21.1
+// @version        2019.3.22.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
@@ -36,14 +36,15 @@ const ß = {
 
     buildLabelCredit: () => {
         const label = ß.labelDB.filter(p => p.name == ß.data.label.toLowerCase()); // Find any label's specific object, if it is in the labelDB array
-        if (label === undefined) {
+        if (label === undefined || !label.length) {
             return [{
-                name: ß.toTitleCase(label)
+                catno: ß.data.catNum,
+                name: ß.toTitleCase(ß.data.label)
             }];
         } else {
             return [{
                 catno: ß.data.catNum,
-                country: label[0].country,
+                country: ('country' in label[0]) ? label[0].country : '',
                 mbid: label[0].mbid,
                 name: label[0].name
             }];
@@ -88,6 +89,10 @@ const ß = {
         };
         releaseObj.country = releaseObj.labels[0].country;
         return releaseObj;
+    },
+
+    formatSeconds: (seconds) => {
+        return (seconds - (seconds %= 60)) / 60 + (9 < seconds ? ":" : ":0") + seconds;
     },
 
     toTitleCase: (str) => {
