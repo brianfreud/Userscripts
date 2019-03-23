@@ -2,7 +2,7 @@
 /* globals         MBImport, $, ß */
 // @name           Import FlipperMusic release listings to MusicBrainz
 // @description    Add a button to import FlipperMusic release listings to MusicBrainz
-// @version        2019.3.22.0
+// @version        2019.3.22.1
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/FlipperMusic_importer.user.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/FlipperMusic_importer.user.js
@@ -78,10 +78,16 @@
         },
 
         postProcessArtists = () => {
+            let splitArtist = (artist) => {
+                return artist.split(/\s[\-\/]\s/);
+            };
             ß.data.tracks = ß.data.tracks.map(track => {
-                let artistArr = track[3].split(/\s[\-\/]\s/);
-                return [track[0], track[1], track[2], ß.unSortnameArray(artistArr), track[4]];
+                ß.data.artistList.add(track[3]);
+                return [track[0], track[1], track[2], ß.unSortnameArray(splitArtist(track[3])), track[4]];
             });
+            if (ß.data.artistList.size === 1) { // If only one artist for release's tracks,
+                ß.data.releaseArtist = ß.unSortnameArray(splitArtist(ß.data.artistList.entries().next().value[0]));
+            }
         },
 
         finishAddProcess = () => {
