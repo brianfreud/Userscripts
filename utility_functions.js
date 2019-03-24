@@ -1,7 +1,7 @@
 // ==UserScript==
 /* globals MBImport, $ */
 // @name           Utility functions
-// @version        2019.3.22.0
+// @version        2019.3.24.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
@@ -77,6 +77,9 @@ const ß = {
             status: 'official',
             language: 'eng',
             script: 'Latn',
+            year: ß.data.year || '',
+            month: ß.data.month || '',
+            day: ß.data.day || '',
             labels: ß.buildLabelCredit(),
             urls: [{
                 url: ß.data.url,
