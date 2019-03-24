@@ -2,13 +2,12 @@
 /* globals         MBImport, $, ß */
 // @name           Import FlipperMusic release listings to MusicBrainz
 // @description    Add a button to import FlipperMusic release listings to MusicBrainz
-// @version        2019.3.22.1
+// @version        2019.3.24.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/FlipperMusic_importer.user.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/FlipperMusic_importer.user.js
 // @include        https://www.flippermusic.it/album/*
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
-// @require        http://creativecouple.github.io/jquery-timing/jquery-timing.js?v=20141012-210756
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/utility_functions.js
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/dict_artists.js
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/dict_labels.js
