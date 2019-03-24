@@ -2,7 +2,7 @@
 /* globals         MBImport, $, ß */
 // @name           Import ExtremeMusic release listings to MusicBrainz
 // @description    Add a button to import ExtremeMusic release listings to MusicBrainz
-// @version        2019.3.24.0
+// @version        2019.3.24.1
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/ExtremeMusic_importer.user.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/ExtremeMusic_importer.user.js
@@ -32,7 +32,7 @@ $.get(document.location.href, function(data) {
         catNum: info.album.abum_no,
         label: info.album.series_title,
         releaseArtist: ["various_artists"],
-        releaseName: info.album.title,
+        releaseName: ß.toTitleCase(info.album.title),
         year: date[1],
         month: date[2],
         day: date[3],
@@ -44,7 +44,7 @@ $.get(document.location.href, function(data) {
     info.tracks.forEach((track) => {
         ß.data.tracks[i] = ['',
             track.track_no.split('_')[1], // Track number
-            track.title,
+            ß.toTitleCase(track.title),
             track.composers.map(composer => composer.name), // Track artists
             times[i]
         ];
@@ -52,7 +52,7 @@ $.get(document.location.href, function(data) {
     });
 
     if (ß.data.artistList.size === 1) { // If only one artist for release's tracks:
-        ß.data.releaseArtist = ß.unSortnameArray(splitArtist(ß.data.artistList.entries().next().value[0]));
+        ß.data.releaseArtist = ß.data.tracks[1][3];
     }
 
     const releaseObj = ß.buildReleaseObject('Digital Media'),
