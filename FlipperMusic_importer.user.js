@@ -2,7 +2,7 @@
 /* globals         MBImport, $, ß */
 // @name           Import FlipperMusic release listings to MusicBrainz
 // @description    Add a button to import FlipperMusic release listings to MusicBrainz
-// @version        2019.3.24.0
+// @version        2019.3.26.1
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/FlipperMusic_importer.user.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/FlipperMusic_importer.user.js
@@ -19,12 +19,15 @@
 ß.data.fM_ID = document.URL.match(/\d+/)[0];
 
 ß.processRelease = (data) => {
-    let rel = data.descCD;
+        let rel = data.descCD;
+        const labelLookup = rel.cd_cod.match(/^[A-Z\-]+/),
+              // If the prefix is in the label db, use that label.  Otherwise use the listed label's name.
+              label = !labelLookup.length ? rel.ca_descrizione : ß.labelDB.filter(p => p.prefix == labelLookup[0])[0].name;
 
     Object.assign(ß.data, {
         artistList: new Set(),
         catNum: rel.cd_cod,
-        label: rel.ca_descrizione,
+        label,
         releaseArtist: ["various_artists"],
         releaseName: rel.cd_titolo,
         lookupsAllRequested: false,
