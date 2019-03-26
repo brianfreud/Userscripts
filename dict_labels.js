@@ -1,7 +1,7 @@
 // ==UserScript==
 /* globals         ß */
 // @name           Label dictionary
-// @version        2019.3.21.0
+// @version        2019.3.25.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/dict_labels.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/dict_labels.js
@@ -249,6 +249,21 @@
     country: 'US',
     mbid: '',
     prefix: 'BDM'
+}, {
+    name: 'cavendish classical',
+    country: 'GB',
+    mbid: '8ed0bb0a-1883-41bb-93e4-21c2cabb92ef',
+    prefix: 'CAVC'
+}, {
+    name: 'cavendish music',
+    country: 'GB',
+    mbid: 'bf6461c0-2543-4274-a7f2-02a8d1fff4de',
+    prefix: 'CAV-CD'
+}, {
+    name: 'cavendish trailers',
+    country: 'GB',
+    mbid: '954d0b12-8129-4d21-b0c6-579821c6dc3f',
+    prefix: 'CAVT'
 }, {
     name: 'cezame',
     country: 'FR',
