@@ -1,7 +1,7 @@
 // ==UserScript==
 /* globals MBImport, $ */
 // @name           Utility functions
-// @version        2019.3.25.0
+// @version        2019.3.26.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
@@ -54,7 +54,7 @@ const ß = {
     buildTracklistArray: () => {
         let trackArray = [];
 
-        ß.data.tracks = [...new Set(ß.data.tracks)].sort((a,b) => { return a[1]-b[1]; });
+        ß.data.tracks = [...new Set(ß.data.tracks)];
 
         for (let track of ß.data.tracks) {
             if (track !== undefined) {
