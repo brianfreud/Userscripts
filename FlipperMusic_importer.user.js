@@ -2,7 +2,7 @@
 /* globals         MBImport, $, ß */
 // @name           Import FlipperMusic release listings to MusicBrainz
 // @description    Add a button to import FlipperMusic release listings to MusicBrainz
-// @version        2019.3.26.1
+// @version        2019.3.27.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/FlipperMusic_importer.user.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/FlipperMusic_importer.user.js
@@ -19,10 +19,11 @@
 ß.data.fM_ID = document.URL.match(/\d+/)[0];
 
 ß.processRelease = (data) => {
-        let rel = data.descCD;
-        const labelLookup = rel.cd_cod.match(/^[A-Z\-]+/),
-              // If the prefix is in the label db, use that label.  Otherwise use the listed label's name.
-              label = !labelLookup.length ? rel.ca_descrizione : ß.labelDB.filter(p => p.prefix == labelLookup[0])[0].name;
+    let rel = data.descCD;
+    const labelLookup = rel.cd_cod.match(/^[A-Z\-]+/);
+    let label = ß.labelDB.filter(p => p.prefix == labelLookup[0])[0];
+    // If the prefix is in the label db, use that label.  Otherwise use the listed label's name.
+    label = !label.length ? rel.ca_descrizione : label.name;
 
     Object.assign(ß.data, {
         artistList: new Set(),
@@ -93,9 +94,9 @@
         },
 
         finishAddProcess = () => {
-            const releaseObj = ß.buildReleaseObject('Digital Media');
-            const edit_note = MBImport.makeEditNote(ß.data.url, 'FlipperMusic', '', 'https://github.com/brianfreud/Userscripts/');
-            const parameters = MBImport.buildFormParameters(releaseObj, edit_note);
+            const releaseObj = ß.buildReleaseObject('Digital Media'),
+                edit_note = MBImport.makeEditNote(ß.data.url, 'FlipperMusic', '', 'https://github.com/brianfreud/Userscripts/'),
+                parameters = MBImport.buildFormParameters(releaseObj, edit_note);
 
             $('#importWorking').empty().append($(MBImport.buildFormHTML(parameters)).addClass('btn'));
         };
