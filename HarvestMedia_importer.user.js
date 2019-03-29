@@ -38,10 +38,10 @@
 
 ß.finishAddProcess = () => {
     const releaseObj = ß.buildReleaseObject('Digital Media'),
-        edit_note = MBImport.makeEditNote(ß.data.url, 'FlipperMusic', '', 'https://github.com/brianfreud/Userscripts/'),
+        edit_note = MBImport.makeEditNote(ß.data.url, 'HarvestMedia', '', 'https://github.com/brianfreud/Userscripts/'),
         parameters = MBImport.buildFormParameters(releaseObj, edit_note);
 
-    $('#importWorking').empty().append($(MBImport.buildFormHTML(parameters)).addClass('btn'));
+    $('.SearchMainLabel').empty().append($(MBImport.buildFormHTML(parameters)).addClass('btn'));
 };
 
 ß.processTracks = (data) => {
@@ -64,5 +64,7 @@
     ß.finishAddProcess();
 };
 
-ß.scrapeRelease();
-$.get(ß.data.url, ß.processTracks);
+$('.ListTextAlbum').on('click', () => {
+    ß.scrapeRelease();
+    $.get(ß.data.url, ß.processTracks);
+});
