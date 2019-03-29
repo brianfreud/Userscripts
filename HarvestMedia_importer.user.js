@@ -6,7 +6,7 @@
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/HarvestMedia_importer.user.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/HarvestMedia_importer.user.js
-// @include        http://live.harvestmedia.net/player.aspx*
+// @include        http://live.harvestmedia.net/player.aspx?acctid=b611c9e6c44bc5db
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/utility_functions.js
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/dict_artists.js
