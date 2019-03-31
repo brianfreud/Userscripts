@@ -3,7 +3,7 @@
 /* jshint          expr: true */
 // @name           MusicBrainz: Script identifier
 // @description    Identify the script of tracklist characters.  Guess/set the script on any import which uses murdos' importer code.
-// @version        2019.3.31.2
+// @version        2019.3.31.3
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/MB_ScriptIdentifier.user.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/MB_ScriptIdentifier.user.js
