@@ -1,13 +1,13 @@
 // ==UserScript==
 /* globals ß */
 // @name           Script dictionary
-// @version        2019.3.31.1
+// @version        2019.3.31.2
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/dict_scripts.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/dict_scripts.js
 // ==/UserScript==
 
-'ß' in window || let ß = { data: {} };
+const ß = { data: {} };
 
 ß.scripts = [
     { code: 'Adlm', name: 'Adlam' },
