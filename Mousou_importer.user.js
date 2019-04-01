@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Import Mousou release listings to MusicBrainz
 // @description    Add a button to import Mousou release listings to MusicBrainz
-// @version        2019.4.1.0
+// @version        2019.4.1.1
 // @include        http://www.musou.gr/music/album/*
 // @namespace      https://github.com/brianfreud
 /* global          MBImport, ß, $ */
@@ -61,7 +61,7 @@
         const $this = $(this);
 
         ß.data.tracks.push([
-            `${$this.text()} (${$this.parent().find(`.comment`).text()})`, // Title
+            `${$this.text()} (${$this.parent().find(`.comment`).text()})`.replace(`()`,``), // Title
             $this.next().text(), // Duration
             $this.parents(`.track-line`).find(`.expand-row dt:contains("Composers")`).next().text() // Artist
         ]);
@@ -90,7 +90,7 @@
                 return artist.trim();
             }),
         track[1].match(/\d\d:\d\d$/u)[0]
-    ]).sort((first, second) => first[0] - second[0]);
+    ]).sort((first, second) => first[1] - second[1]);
 
     ß.data.totalTracks = ß.data.tracks.length;
 };
@@ -98,17 +98,18 @@
 ß.scrapeRelease = () => {
     'use strict';
 
-    const dds = $(`.track-line:first .expand-row dd`).map(function getText () {
-        return this.innerText;
-    });
+    const dds = $(`.track-line:first .expand-row dt`).filter(`:contains(Sub-label), :contains(Album), :contains(Album code), :contains(Year)`)
+        .map(function getText () {
+            return this.nextElementSibling.innerText;
+        });
 
     Object.assign(ß.data, {
-        catNum: dds[6],
-        label: dds[4].toLowerCase(),
+        catNum: dds[2],
+        label: dds[0].toLowerCase(),
         releaseArtist: [`various_artists`],
-        releaseName: dds[5].replace(` Vol. `, `, Volume `),
+        releaseName: dds[1].replace(` Vol. `, `, Volume `),
         url: document.location.href,
-        year: dds[7]
+        year: dds[3]
     });
 };
 
