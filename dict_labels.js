@@ -1,7 +1,7 @@
 // ==UserScript==
 /* globals         ß */
 // @name           Label dictionary
-// @version        2019.3.25.0
+// @version        2019.4.1.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/dict_labels.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/dict_labels.js
@@ -734,6 +734,11 @@
     country: 'GB',
     mbid: '92ff2893-6ce0-402f-b662-7ae0811f44ff',
     prefix: 'WAA'
+}, {
+    name: 'who did that music',
+    country: 'US',
+    mbid: '75892da4-7d87-44f4-b502-1e0a60f466e3',
+    prefix: 'TL'
 }, {
     name: 'wrong planet',
     country: 'GB',
