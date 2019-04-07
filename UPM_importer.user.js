@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Import Universal Production Music release listings to MusicBrainz
 // @description    Add a button to import Universal Production Music release listings to MusicBrainz
-// @version        2019.4.4.2
+// @version        2019.4.7.0
 // @include        https://www.universalproductionmusic.com/en-se/discover/albums/*
 // @namespace      https://github.com/brianfreud
 /* global          MBImport, ß, $ */
@@ -93,7 +93,7 @@
             artists = $this.next().find(`[translate="PLAYLIST.ALBUM_HEADERS.COMPOSER"]`).next()
                 .find(`li`).map(function getArtistText () {
                     return this.innerText.replace(/\[.+\]/u, ``).trim();
-                }),
+                }).toArray(),
             makeArray = () => [
                 ``, // unused
                 tracknum, // track number
@@ -102,7 +102,7 @@
                 `` // duration isn`t available :(
             ];
 
-        ß.data.artistList.add(artists);
+        artists.length > 0 && ß.data.artistList.add(artists.join(`&`));
 
         if (existingTrack.length) { // UPM shows main tracks as alternates when other alternates also exist
             ß.data.tracks[existingTrack] = makeArray();
@@ -151,9 +151,9 @@ const waitForAlbum = () => {
             clearInterval(checker); // eslint-disable-line no-use-before-define
             ß.data.tracks = [];
             ß.getReleaseInfo();
-            ß.cleanReleaseInfo();
             ß.getTrackInfo();
             ß.cleanTrackInfo();
+            ß.cleanReleaseInfo();
             ß.makeImportButton();
         }
     },
