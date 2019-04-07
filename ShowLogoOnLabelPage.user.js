@@ -2,7 +2,7 @@
 // @author         Brian Schweitzer
 // @name           Show logo image on label pages at MusicBrainz
 // @description    Show logo image on label pages at MusicBrainz, if the AR exists
-// @version        2019.4.6.1
+// @version        2019.4.7.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/ShowLogoOnLabelPage.user.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/ShowLogoOnLabelPage.user.js
@@ -55,9 +55,12 @@
 
             img.onload = function onload () {
 
-                const RGB = getAverageRGB(img);
+                const RGB = getAverageRGB(img),
+                    rangeMin = 70,
+                    rangeMax = 110,
+                    rangeCheck = (val) => rangeMin <= val && rangeMax >= val;
 
-                if (75 < RGB.r && 75 < RGB.g && 75 < RGB.b) {
+                if (rangeCheck(RGB.r) && rangeCheck(RGB.g) && rangeCheck(RGB.b)) {
 
                     $(`.LabelLogo`).css(`filter`, `invert(100%)`);
 
