@@ -1,7 +1,7 @@
 // ==UserScript==
 /* globals MBImport, $ */
 // @name           Utility functions
-// @version        2019.3.26.0
+// @version        2019.4.7.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
@@ -20,7 +20,7 @@ const ß = {
             } else {
                 let creditObj = {
                     artist_name: ß.toTitleCase(name),
-                    mbid: name.toLowerCase() in ß.artistDB ? ß.artistDB[name.toLowerCase()] : ''
+                    mbid: ß.artistDB.get(name.toLowerCase()) || ''
                 };
                 if (names.length > 1) {
                     if (names.length - 1 !== i) {
@@ -71,7 +71,7 @@ const ß = {
 
     buildReleaseObject: (format = 'CD') => {
         let releaseObj = {
-            title: ß.data.releaseName,
+            title: ß.data.releaseName.replace(` - Volume`, `, Volume`),
             artist_credit: ß.buildArtistCredit(ß.data.releaseArtist),
             type: 'album',
             status: 'official',
