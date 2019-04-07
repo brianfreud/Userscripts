@@ -1,137 +1,130 @@
 // ==UserScript==
-// @name           Import Universal Production Music release listings to MusicBrainz
-// @description    Add a button to import Universal Production Music release listings to MusicBrainz
-// @version        2019.4.4.0
-// @include        https://www.universalproductionmusic.com/en-se/discover/albums/*
+/* globals MBImport, $ */
+// @name           Utility functions
+// @version        2019.4.7.0
 // @namespace      https://github.com/brianfreud
-/* global          MBImport, ß, $ */
-/* eslint          camelcase: off */
-/* eslint          capitalized-comments: off */
-/* eslint          dot-location: ["error", "property"] */
-/* eslint-env      es6, jquery */
-/* eslint          id-length: off */
-/* eslint          line-comment-position: off */
-/* eslint          max-len: off */
-/* eslint          multiline-comment-style: off */
-/* eslint          newline-per-chained-call: off */
-/* eslint          no-inline-comments: off */
-/* eslint          no-invalid-this: off */
-/* eslint          no-magic-numbers: off */
-/* eslint          no-whitespace-before-property: off */
-/* eslint          padded-blocks: off */
-/* eslint          prefer-destructuring: off */
-/* eslint          prefer-named-capture-group: off */
-/* eslint          quote-props: ["error", "as-needed"] */
-/* eslint          quotes: ["error", "backtick"] */
-/* eslint          sort-keys: off */
-/* eslint          sort-vars: off */
-/* eslint          spaced-comment: off */
-// @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/UPM_importer.user.js
-// @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/UPM_importer.user.js
-// @require        https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
-// @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/utility_functions.js
-// @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/dict_artists.js
-// @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/dict_labels.js
-// @require        https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/lib/mbimport.js
-// @require        https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/lib/mbimportstyle.js
-// @icon           https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/images/Musicbrainz_import_logo.png
+// @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
+// @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // ==/UserScript==
 
-ß.getReleaseInfo = () => {
-    'use strict';
+const ß = {
 
-    const $fields = $(`.c-album-info__desc`),
-        date = $fields[$fields.length - 1].innerText.split(` `);
+    data: {},
 
-    Object.assign(ß.data, {
-        catnum: $fields[0].innerText.trim(),
-        releaseTitle: $(`.c-detailpage__title`)[0].innerText,
-        label: $fields[1].innerText.trim(),
-        url: document.location.href,
-        day: date[0],
-        month: {
-            Jan: 1,
-            Feb: 2,
-            Mar: 3,
-            Apr: 4,
-            May: 5,
-            Jun: 6,
-            Jul: 7,
-            Aug: 8,
-            Sep: 9,
-            Oct: 10,
-            Nov: 11,
-            Dec: 12
-        } [date[1]],
-        year: date[2]
-    });
-};
+    buildArtistCredit: (names) => {
+        let creditArr = [];
 
-ß.cleanReleaseInfo = () => {
-    'use strict';
-
-    ß.data.label = {
-        Koka: `Koka Media`
-    } [ß.data.label] || ß.data.label;
-
-};
-
-ß.getTrackInfo = () => {
-    'use strict';
-
-    $(`.c-track__main`).each(function processTrack () {
-
-        const $this = $(this),
-            tracknum = $this.find(`.c-track__item--id`).text().split(`-`)[1],
-            existingTrack = ß.data.tracks.filter((track) => track[1] === tracknum),
-            makeArray = () => [
-                ``, // unused
-                tracknum, // track number
-                $this.find(`.c-track__item--title`).text().trim(), // title
-                $this.next().find(`[translate="PLAYLIST.ALBUM_HEADERS.COMPOSER"]`).next()
-                    .find(`li`).map(() => $this.text().replace(/\[.+\]/u, ``).trim() || []), // artist
-                `` // duration isn`t available :(
-            ];
-
-        if (existingTrack.length) { // UPM shows main tracks as alternates when other alternates also exist
-            ß.data.tracks[existingTrack] = makeArray();
-        } else {
-            ß.data.tracks.push(makeArray());
+        for (let [i, name] of [...names].entries()) {
+            if (name === 'various_artists' || name === 'unknown') {
+                creditArr.push(MBImport.specialArtist(name));
+            } else {
+                let creditObj = {
+                    artist_name: ß.toTitleCase(name),
+                    mbid: ß.artistDB.get(name.toLowerCase()) || ''
+                };
+                if (names.length > 1) {
+                    if (names.length - 1 !== i) {
+                        creditObj.joinphrase = names.length - 2 === i ? ' & ' : ', ';
+                    }
+                }
+                creditArr.push(creditObj);
+            }
         }
-    });
 
-};
+        return creditArr;
+    },
 
-ß.cleanTrackInfo = () => {
-    'use strict';
-
-    let mainTrack = ``;
-
-    for (const track of ß.data.tracks) {
-        if (track[3].length) {
-            mainTrack = track;
+    buildLabelCredit: () => {
+        const label = ß.labelDB.filter(p => p.name == ß.data.label.toLowerCase()); // Find any label's specific object, if it is in the labelDB array
+        if (label === undefined || !label.length) {
+            return [{
+                catno: ß.data.catNum,
+                name: ß.toTitleCase(ß.data.label)
+            }];
         } else {
-            track[2] = `${mainTrack[2]} (${track[2]})`.replace(/\n\s+(.+)/u, ` ($1)`)
-                .replace(/\((.+)\s\((.+)\)\)/u, `($1) ($2)`)
-                .replace(/\((.+)\s\((.+)\)\)/u, `($1) ($2)`); // second time finishes cleaning text in sub-subversions
+            return [{
+                catno: ß.data.catNum,
+                country: ('country' in label[0]) ? label[0].country : '',
+                mbid: label[0].mbid,
+                name: label[0].name
+            }];
         }
+    },
+
+    buildTracklistArray: () => {
+        let trackArray = [];
+
+        ß.data.tracks = [...new Set(ß.data.tracks)];
+
+        for (let track of ß.data.tracks) {
+            if (track !== undefined) {
+                trackArray.push({
+                    number: track[1],
+                    title: track[2],
+                    duration: track[4],
+                    artist_credit: ß.buildArtistCredit(track[3])
+                });
+            }
+        }
+        return trackArray;
+    },
+
+    buildReleaseObject: (format = 'CD') => {
+        let releaseObj = {
+            title: ß.data.releaseName.replace(` - Volume`, `, Volume`),
+            artist_credit: ß.buildArtistCredit(ß.data.releaseArtist),
+            type: 'album',
+            status: 'official',
+            language: 'eng',
+            script: 'Latn',
+            year: ß.data.year || '',
+            month: ß.data.month || '',
+            day: ß.data.day || '',
+            labels: ß.buildLabelCredit(),
+            urls: [{
+                url: ß.data.url,
+                link_type: 288
+            }],
+            discs: [{
+                format: format,
+                tracks: ß.buildTracklistArray()
+            }, ]
+        };
+        releaseObj.country = releaseObj.labels[0].country;
+        return releaseObj;
+    },
+
+    formatSeconds: (seconds) => {
+        return (seconds - (seconds %= 60)) / 60 + (9 < seconds ? ":" : ":0") + seconds;
+    },
+
+    toTitleCase: (str) => {
+        return str
+            .toLowerCase()
+            .split(' ')
+            .map(word => word.substr(0, 1).toUpperCase() + word.substr(1))
+            .join(' ');
+    },
+
+    unSortname: (str) => { // Turns "Jones, Bob" back into "Bob Jones"
+        let name = str.split(",")
+            .map(a => a.trim());
+        return [name.splice(-1), name].flat().join(" ");
+    },
+
+    unSortnameArray: (arr) => { // Turns ["Jones, Bob"] into ["bob jones"]
+        return arr.map(name => ß.unSortname(name.toLowerCase()));
+    },
+
+    getIDText: (str) => ß.$getID(str).text(),
+
+    $getTDs: (node) => $(node).find('td'),
+
+    getTDText: ($nodes, i) => $.trim($nodes.eq(i).text()),
+
+    buildImportTools: (prefix = '') => {
+        Object.assign(ß, {
+            $getID: (str) => $(`#${prefix}${str}`),
+        });
     }
 };
-
-ß.makeImportButton = () => {
-    'use strict';
-
-    const edit_note = MBImport.makeEditNote(ß.data.url, `Universal Production Music`, ``, `https://github.com/brianfreud/Userscripts/`),
-        releaseObj = ß.buildReleaseObject(`Digital Media`),
-        parameters = MBImport.buildFormParameters(releaseObj, edit_note),
-        mbButton = `<div>${MBImport.buildFormHTML(parameters)}</div>`;
-
-    $(`.o-wrapper`).prepend(mbButton);
-};
-
-ß.data.tracks = [];
-ß.getReleaseInfo();
-ß.cleanReleaseInfo();
-ß.getTrackInfo();
-ß.cleanTrackInfo();
-ß.makeImportButton();
