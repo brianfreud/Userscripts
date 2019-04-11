@@ -2,7 +2,7 @@
 /* globals         MBImport, $, ß */
 // @name           Import FlipperMusic release listings to MusicBrainz
 // @description    Add a button to import FlipperMusic release listings to MusicBrainz
-// @version        2019.3.27.1
+// @version        2019.4.11.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/FlipperMusic_importer.user.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/FlipperMusic_importer.user.js
@@ -112,9 +112,9 @@
 };
 
 
-$.getJSON(`https://www.flippermusic.it/wp-content/themes/Divi-child/query.php?` +
-    `op=listaTracceCDInfo&traccePerPagina=2000&pagina=1&idCD=${ß.data.fM_ID}`,
-    function(data) {
+fetch(`https://www.flippermusic.it/wp-content/themes/Divi-child/query.php?op=listaTracceCDInfo&traccePerPagina=2000&pagina=1&idCD=${ß.data.fM_ID}`)
+    .then(response => response.json())
+    .then(data => {
         $('#importCounter').text(ß.data.remaining);
 
         $('#et-top-navigation').prepend($(`
