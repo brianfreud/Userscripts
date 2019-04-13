@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Import Upright Music release listings to MusicBrainz
 // @description    Add a button to import Upright Music release listings to MusicBrainz
-// @version        2019.4.13.2
+// @version        2019.4.13.3
 // @include        https://search.upright-music.pl/album/*
 // @namespace      https://github.com/brianfreud
 /* global          MBImport, ß, $ */
@@ -130,6 +130,8 @@
 
 ß.finalizeRelease = (doc) => {
     'use strict';
+
+    ß.data.tracks = ß.data.tracks.sort((first, second) => first[1] - second[1]);
 
     ß.getDateInfo(doc);
 
