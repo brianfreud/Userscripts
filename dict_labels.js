@@ -1,7 +1,7 @@
 // ==UserScript==
 /* globals      ß */
 // @name        Label dictionary
-// @version     2019.4.13.0
+// @version     2019.4.13.1
 // @namespace   https: //github.com/brianfreud
 // @downloadURL https: //raw.githubusercontent.com/brianfreud/Userscripts/edit/master/dict_labels.js
 // @updateURL   https: //raw.githubusercontent.com/brianfreud/Userscripts/edit/master/dict_labels.js
@@ -228,7 +228,7 @@
 {name: 'muse', country: '', mbid: '', prefix: 'MUSE'}, 
 {name: 'musica britannica', country: '', mbid: '', prefix: 'ESL-MB'}, 
 {name: 'musical concepts', country: 'US', mbid: '7e515f97-54f8-4ac6-ba74-922fd8df0109', prefix: 'MCCD'}, 
-{name: 'music beyond', country: '', mbid: '', prefix: 'BYND'}, 
+{name: 'music beyond', country: '', mbid: '32183667-f5e9-4a0d-8df3-fba12f2ffa62', prefix: 'BYND'},
 {name: 'musicbox classics', country: '', mbid: '', prefix: 'MBC'}, 
 {name: 'musicbox', country: '', mbid: '', prefix: 'MB'}, 
 {name: 'music for productions', country: 'CA', mbid: '', prefix: 'MFP'}, 
