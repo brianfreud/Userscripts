@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Import Upright Music release listings to MusicBrainz
 // @description    Add a button to import Upright Music release listings to MusicBrainz
-// @version        2019.4.13.1
+// @version        2019.4.13.2
 // @include        https://search.upright-music.pl/album/*
 // @namespace      https://github.com/brianfreud
 /* global          MBImport, ß, $ */
@@ -60,10 +60,12 @@
 ß.getDateInfo = (doc) => {
     'use strict';
 
-    const date = $(doc.getElementsByClassName(`meta-info-published`)).text().slice(1).trim();
+    const date = $(doc.getElementsByClassName(`meta-info-published`)).text().slice(1).trim(),
+          year = date.match(/([A-Z][a-z]{2})/u) || [ ``];
 
     Object.assign(ß.data, {
         month: {
+            '': ``,
             Jan: 1,
             Feb: 2,
             Mar: 3,
@@ -76,7 +78,7 @@
             Oct: 10,
             Nov: 11,
             Dec: 12
-        } [date.match(/([A-Z][a-z]{2})/u)[1]],
+        } [year[1]],
         year: date.match(/(\d{4})/u)[1]
     });
 };
