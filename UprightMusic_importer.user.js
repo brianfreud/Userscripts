@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Import Upright Music release listings to MusicBrainz
 // @description    Add a button to import Upright Music release listings to MusicBrainz
-// @version        2019.4.13.0
+// @version        2019.4.13.1
 // @include        https://search.upright-music.pl/album/*
 // @namespace      https://github.com/brianfreud
 /* global          MBImport, ß, $ */
@@ -29,7 +29,7 @@
 /* eslint          spaced-comment: off */
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/UprightMusic_importer.user.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/UprightMusic_importer.user.js
-// @require        https://code.$.com/$-3.4.0.min.js
+// @require        https://code.jquery.com/jquery-3.4.0.min.js
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/utility_functions.js
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/dict_artists.js
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/dict_labels.js
@@ -52,14 +52,15 @@
         label: ß.labelDB.filter((p) => p.prefix === labelPrefix)[0].name,
         numTracks: $(`.playlist-item-unexpanded`).length,
         url: document.location.href,
-        tracksProcessed: 0
+        tracksProcessed: 0,
+        tracks: []
     });
 };
 
 ß.getDateInfo = (doc) => {
     'use strict';
 
-    const date = doc.getElementsByClassName(`meta-info-published`).innerText.slice(1).trim();
+    const date = $(doc.getElementsByClassName(`meta-info-published`)).text().slice(1).trim();
 
     Object.assign(ß.data, {
         month: {
@@ -138,7 +139,7 @@
         edit_note = MBImport.makeEditNote(ß.data.url, `Upright Music`, ``, `https://github.com/brianfreud/Userscripts/`),
         parameters = MBImport.buildFormParameters(releaseObj, edit_note);
 
-    $(`.hero-top-wrapper > ul`).after(MBImport.buildFormHTML(parameters));
+    $(`.hero-top-wrapper > ul`).after($(MBImport.buildFormHTML(parameters)).css(`margin`, `1em 3em`));
 };
 
 ß.getReleaseInfo();
