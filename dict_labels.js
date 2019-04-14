@@ -1,7 +1,7 @@
 // ==UserScript==
 /* globals      ß */
 // @name        Label dictionary
-// @version     2019.4.13.2
+// @version     2019.4.14.0
 // @namespace   https: //github.com/brianfreud
 // @downloadURL https: //raw.githubusercontent.com/brianfreud/Userscripts/edit/master/dict_labels.js
 // @updateURL   https: //raw.githubusercontent.com/brianfreud/Userscripts/edit/master/dict_labels.js
@@ -19,7 +19,7 @@
 {name: '4 elements music', country: 'US', mbid: '', prefix: '4EM'},
 {name: '9 lives music', country: '', mbid: '', prefix: 'NLM'},
 {name: 'abaco music', country: '', mbid: 'd595bbf8-1be3-41d1-83f8-c871b39082d2', prefix: 'AB'},
-{name: 'abaco music', country: '', mbid: 'fb53ec78-e6a3-4eda-8259-b37aef515437', prefix: 'AB'},
+{name: 'abaco music', country: '', mbid: 'd595bbf8-1be3-41d1-83f8-c871b39082d2', prefix: 'AB-CD'},
 {name: 'absolute music', country: 'GB', mbid: 'd595bbf8-1be3-41d1-83f8-c871b39082d2', prefix: 'ABS'},
 {name: 'adrenalin', country: 'AU', mbid: '', prefix: 'AD'},
 {name: 'adrenalin vocals', country: 'AU', mbid: 'ba3037fb-65dc-42ad-9eb3-71e0014205f5', prefix: 'ADV'},
