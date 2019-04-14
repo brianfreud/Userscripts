@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Import APM Music release listings to MusicBrainz
 // @description    Add a button to import APM Music release listings to MusicBrainz
-// @version        2019.4.14.0
+// @version        2019.4.14.1
 // @include        https://www.apmmusic.com/albums/*
 // @namespace      https://github.com/brianfreud
 /* global          MBImport, ß, $ */
@@ -58,8 +58,8 @@
         tracksProcessed: 0,
         tracks: [],
         day: dateInfo[3],
-        month: dateInfo[3],
-        year: dateInfo[2]
+        month: dateInfo[2],
+        year: dateInfo[1]
     });
 };
 
