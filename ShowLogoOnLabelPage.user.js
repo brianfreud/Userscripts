@@ -2,7 +2,7 @@
 // @author         Brian Schweitzer
 // @name           Show logo image on label pages at MusicBrainz
 // @description    Show logo image on label pages at MusicBrainz, if the AR exists
-// @version        2019.4.7.0
+// @version        2019.4.15.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/ShowLogoOnLabelPage.user.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/ShowLogoOnLabelPage.user.js
@@ -35,7 +35,6 @@
 // ==/UserScript==
 
 {
-
     const url = document.URL.split(`/`);
 
     $.getJSON(`${url[0]}//musicbrainz.org/ws/2/label/${url[4]}?inc=url-rels&fmt=json`, (data) => {
@@ -44,35 +43,25 @@
         const ar = data.relations.filter((rel) => rel.type === `logo`);
 
         if (0 < ar.length) {
-
             const imageURL = ar[0].url.resource,
                 img = new Image(),
                 src = `https://cors-anywhere.herokuapp.com/${imageURL}`;
 
-            $(`.commons-image`).append(`<img style="max-width: 215px;" src="${imageURL}" class="LabelLogo"/>`);
+            $(`.commons-image`).append(`<img style="max-width: 215px;" src="${src}" class="LabelLogo"/>`);
 
             // Solve the issue of all-white logos not being visible against the background
-
             img.onload = function onload () {
-
                 const RGB = getAverageRGB(img),
                     rangeMin = 70,
                     rangeMax = 110,
                     rangeCheck = (val) => rangeMin <= val && rangeMax >= val;
 
                 if (rangeCheck(RGB.r) && rangeCheck(RGB.g) && rangeCheck(RGB.b)) {
-
                     $(`.LabelLogo`).css(`filter`, `invert(100%)`);
-
                 }
-
             };
-
             img.crossOrigin = ``;
             img.src = src;
-
         }
-
     });
-
 }
