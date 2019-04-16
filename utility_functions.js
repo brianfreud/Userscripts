@@ -41,7 +41,6 @@ const ß = {};
     'use strict';
 
     Object.assign(ß, {
-
         data: {},
 
         buildArtistCredit: (names) => {
