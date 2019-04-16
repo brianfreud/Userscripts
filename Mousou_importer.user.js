@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Import Mousou release listings to MusicBrainz
 // @description    Add a button to import Mousou release listings to MusicBrainz
-// @version        2019.4.1.1
+// @version        2019.4.15.0
 // @include        http://www.musou.gr/music/album/*
 // @namespace      https://github.com/brianfreud
 /* global          MBImport, ß, $ */
