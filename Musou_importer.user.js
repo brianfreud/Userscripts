@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name           Import Mousou release listings to MusicBrainz
-// @description    Add a button to import Mousou release listings to MusicBrainz
+// @name           Import Musou release listings to MusicBrainz
+// @description    Add a button to import Musou release listings to MusicBrainz
 // @version        2019.4.15.0
 // @include        http://www.musou.gr/music/album/*
 // @namespace      https://github.com/brianfreud
@@ -24,8 +24,8 @@
 /* eslint          quotes: ["error", "backtick"] */
 /* eslint          sort-vars: off */
 /* eslint          spaced-comment: off */
-// @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/Mousou_importer.user.js
-// @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/Mousou_importer.user.js
+// @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/Musou_importer.user.js
+// @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/Musou_importer.user.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/utility_functions.js
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/dict_artists.js
