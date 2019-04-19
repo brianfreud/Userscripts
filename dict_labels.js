@@ -1,7 +1,7 @@
 // ==UserScript==
 /* globals      ß */
 // @name        Label dictionary
-// @version     2019.4.14.0
+// @version     2019.4.19.0
 // @namespace   https: //github.com/brianfreud
 // @downloadURL https: //raw.githubusercontent.com/brianfreud/Userscripts/edit/master/dict_labels.js
 // @updateURL   https: //raw.githubusercontent.com/brianfreud/Userscripts/edit/master/dict_labels.js
@@ -216,7 +216,7 @@
 {name: 'magazine records', country: 'FR', mbid: '', prefix: 'MR'},
 {name: 'magnetic records', country: 'FR', mbid: '', prefix: 'MAG'},
 {name: 'marquee music', country: 'US', mbid: '203004cc-1fba-4847-9f89-140a17f81196', prefix: 'MQ'},
-{name: 'megatrax', country: 'US', mbid: 'a73e1b87-96f5-4e07-ae66-e69e4f57907a', prefix: 'MX'},
+{name: 'megatrax', country: 'US', mbid: 'a82773f8-8f6d-483f-9b2a-3fdc0d0d4418', prefix: 'MX'},
 {name: 'mexican music library', country: '', mbid: '', prefix: 'MML'},
 {name: 'minds and music', country: '', mbid: '9d791422-9236-4776-94cb-48f908f651b5', prefix: 'MAM'},
 {name: 'minim', country: '', mbid: '', prefix: 'MNM'},
