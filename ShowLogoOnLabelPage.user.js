@@ -2,7 +2,7 @@
 // @author         Brian Schweitzer
 // @name           Show logo image on label pages at MusicBrainz
 // @description    Show logo image on label pages at MusicBrainz, if the AR exists
-// @version        2019.4.15.0
+// @version        2019.4.19.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/ShowLogoOnLabelPage.user.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/ShowLogoOnLabelPage.user.js
@@ -47,7 +47,8 @@
                 img = new Image(),
                 src = `https://cors-anywhere.herokuapp.com/${imageURL}`;
 
-            $(`.commons-image`).append(`<img style="max-width: 215px;" src="${src}" class="LabelLogo"/>`);
+            $(`.commons-image`).css(`text-align`, `center`)
+                .append(`<img style="max-height: 150px;max-width: 215px;" src="${src}" class="LabelLogo"/>`);
 
             // Solve the issue of all-white logos not being visible against the background
             img.onload = function onload () {
