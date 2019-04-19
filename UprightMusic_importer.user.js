@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name           Import Upright Music release listings to MusicBrainz
 // @description    Add a button to import Upright Music release listings to MusicBrainz
-// @version        2019.4.14.0
-// @include        https://search.upright-music.pl/album/*
+// @version        2019.4.19.0
+// @include        https://search.upright-music.*/album/*
 // @namespace      https://github.com/brianfreud
 /* global          MBImport, ß, $ */
 /* eslint          camelcase: off */
@@ -86,7 +86,7 @@
 ß.getArtistInfo = (trackNum) => {
     'use strict';
 
-    fetch(`https://search.upright-music.pl/track/${ß.data.tracks[trackNum][0]}/ajax`)
+    fetch(`https://${document.location.href.split(`/`)[2]}/track/${ß.data.tracks[trackNum][0]}/ajax`)
         .then((response) => response.text())
         .then((html) => {
 
