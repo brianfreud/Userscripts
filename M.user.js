@@ -18,6 +18,7 @@
 /* eslint          no-invalid-this: off */
 /* eslint          no-sparse-arrays: off */
 /* eslint          no-magic-numbers: off */
+/* eslint          one-var: off */
 /* eslint          padded-blocks: off */
 /* eslint          prefer-destructuring: off */
 /* eslint          prefer-named-capture-group: off */
@@ -40,9 +41,6 @@
 (function strictWrapper () {
     'use strict';
 
-    ß.data.tracks = [];
-    ß.data.artistList = new Set();
-
     const getTrackComposer = (el) => {
         const infoDTs = el.closest(`.track-line`)
             .querySelectorAll(`.expand-row dt`);
@@ -50,7 +48,7 @@
         return [...infoDTs].filter((dt) => dt.textContent === `Composers`)[0];
     };
 
-    ß.scrapeMainTracks = () => {
+    const scrapeMainTracks = () => {
         ß.data.tracks = ß.getTracks({
             trackSelector: `.parent .track-title`,
             parseTrack: (el) => [
@@ -62,7 +60,7 @@
         });
     };
 
-    ß.scrapeAltTracks = () => {
+    const scrapeAltTracks = () => {
         ß.data.tracks.push(ß.getTracks({
             trackSelector: `.other-versions .track-title`,
             parseTrack: (el) => [
@@ -73,6 +71,7 @@
             ].flat()
         }));
     };
+
 
     // ------------------------------------------------
 
@@ -133,10 +132,14 @@
         $(`.description:first`).after(mbButton);
     };
 
-    ß.scrapeMainTracks();
-    ß.scrapeAltTracks();
-    ß.parseTracks();
+    ß.data.artistList = new Set();
+    ß.data.tracks = [];
+    scrapeMainTracks();
+    scrapeAltTracks();
+    ß.setTotalTracks();
+//    ß.parseTracks();
     ß.scrapeRelease();
+console.dir(ß.data);    
     ß.checkReleaseArtist();
     ß.makeImportButton();
     // ------------------------------------------------
