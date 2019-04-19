@@ -63,11 +63,11 @@
     const scrapeAltTracks = () => {
         ß.data.tracks.push(ß.getTracks({
             trackSelector: `.other-versions .track-title`,
-            parseTrack: (el) => [
+            parseTrack: (el, parent = el.parentNode) => [
                 ``, // key
-                `${el.parentNode.textContent} (${parent.querySelector(`.comment`).textContent})`.toLowerCase().split(`. `), // [number, title]
+                `${parent.textContent} (${parent.querySelector(`.comment`).textContent})`.toLowerCase().split(`. `), // [number, title]
                 getTrackComposer(el).nextElementSibling.textContent, // artist
-                el.parentNode.querySelector(`.duration`).textContent.remove(/^\s*00:/u) // duration
+                parent.querySelector(`.duration`).textContent.remove(/^\s*00:/u) // duration
             ].flat()
         }));
     };
