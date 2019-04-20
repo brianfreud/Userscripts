@@ -1,17 +1,17 @@
 // ==UserScript==
-/* globals MBImport, $ */
-// @name           Utility functions TEST
-// @version        2019.4.20.1
+// @name           Utility functions
+// @version        2019.4.20.2
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
+/* globals         MBImport */
 /* eslint          array-bracket-newline: off */
 /* eslint          array-element-newline: off */
 /* eslint          brace-style: ["error", "stroustrup", { "allowSingleLine": true }] */
 /* eslint          camelcase: off */
 /* eslint          capitalized-comments: off */
 /* eslint          dot-location: ["error", "property"] */
-/* eslint-env      es6, $ */
+/* eslint-env      es6, jquery */
 /* eslint          id-length: off */
 /* eslint          key-spacing: off */
 /* eslint          line-comment-position: off */
@@ -27,6 +27,7 @@
 /* eslint          no-plusplus: off */
 /* eslint          no-ternary: off */
 /* eslint          no-whitespace-before-property: off */
+/* eslint          object-curly-spacing: off */
 /* eslint          one-var: off */
 /* eslint          padded-blocks: off */
 /* eslint          prefer-destructuring: off */
