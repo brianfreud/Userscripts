@@ -5,23 +5,36 @@
 // @include        http://www.musou.gr/music/album/*
 // @namespace      https://github.com/brianfreud
 /* global          MBImport, ß, $ */
+/* eslint          array-bracket-newline: off */
+/* eslint          array-element-newline: off */
+/* eslint          brace-style: ["error", "stroustrup", { "allowSingleLine": true }] */
 /* eslint          camelcase: off */
 /* eslint          capitalized-comments: off */
 /* eslint          dot-location: ["error", "property"] */
 /* eslint-env      es6, jquery */
 /* eslint          id-length: off */
+/* eslint          key-spacing: off */
 /* eslint          line-comment-position: off */
 /* eslint          max-len: off */
+/* eslint          max-lines: off */
 /* eslint          multiline-comment-style: off */
 /* eslint          newline-per-chained-call: off */
+/* eslint          no-extra-parens: ["error", "all", { "nestedBinaryExpressions": false }] */
 /* eslint          no-inline-comments: off */
 /* eslint          no-invalid-this: off */
 /* eslint          no-magic-numbers: off */
+/* eslint          no-param-reassign: off */
+/* eslint          no-plusplus: off */
+/* eslint          no-ternary: off */
+/* eslint          no-whitespace-before-property: off */
+/* eslint          one-var: off */
 /* eslint          padded-blocks: off */
 /* eslint          prefer-destructuring: off */
 /* eslint          prefer-named-capture-group: off */
+/* eslint          prefer-reflect: off */
 /* eslint          quote-props: ["error", "as-needed"] */
 /* eslint          quotes: ["error", "backtick"] */
+/* eslint          sort-keys: off */
 /* eslint          sort-vars: off */
 /* eslint          spaced-comment: off */
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/Musou_importer.user.js
@@ -61,7 +74,7 @@
         const $this = $(this);
 
         ß.data.tracks.push([
-            `${$this.text()} (${$this.parent().find(`.comment`).text()})`.replace(`()`,``), // Title
+            `${$this.text()} (${$this.parent().find(`.comment`).text()})`.replace(`()`, ``), // Title
             $this.next().text(), // Duration
             $this.parents(`.track-line`).find(`.expand-row dt:contains("Composers")`).next().text() // Artist
         ]);
