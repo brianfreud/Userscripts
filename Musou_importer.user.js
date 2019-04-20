@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name           Import Musou release listings to MusicBrainz
+// @name           Import Musou release listings to MusicBrainz TEST
 // @description    Add a button to import Musou release listings to MusicBrainz
-// @version        2019.4.15.0
+// @version        2019.4.20.0
 // @include        http://www.musou.gr/music/album/*
 // @namespace      https://github.com/brianfreud
 /* global          MBImport, ß, $ */
@@ -27,6 +27,7 @@
 /* eslint          no-plusplus: off */
 /* eslint          no-ternary: off */
 /* eslint          no-whitespace-before-property: off */
+/* eslint          object-curly-spacing: off */
 /* eslint          one-var: off */
 /* eslint          padded-blocks: off */
 /* eslint          prefer-destructuring: off */
@@ -40,7 +41,7 @@
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/Musou_importer.user.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/Musou_importer.user.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
-// @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/utility_functions.js
+// @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/e.js
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/dict_artists.js
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/dict_labels.js
 // @require        https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/lib/mbimport.js
@@ -48,106 +49,71 @@
 // @icon           https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/images/Musicbrainz_import_logo.png
 // ==/UserScript==
 
-ß.data.tracks = [];
-ß.data.artistList = new Set();
+(function strictWrapper () { // eslint-disable-line max-statements
 
-ß.scrapeMainTracks = () => {
     'use strict';
 
-    $(`.parent .track-title`).each(function parse () {
+    const getTrackComposer = (el) => {
+        const infoDTs = el.closest(`.track-line`)
+            .querySelectorAll(`.expand-row dt`);
 
-        const $this = $(this);
+        return [...infoDTs].filter((dt) => dt.textContent === `Composers`)[0];
+    };
 
-        ß.data.tracks.push([
-            $this.text(), // Title
-            $this.next().text(), // Duration
-            $this.parents(`.track-line`).find(`.expand-row dt:contains("Composers")`).next().text() // Artist
-        ]);
-    });
-};
-
-ß.scrapeAltTracks = () => {
-    'use strict';
-
-    $(`.other-versions .track-title`).each(function parse () {
-
-        const $this = $(this);
-
-        ß.data.tracks.push([
-            `${$this.text()} (${$this.parent().find(`.comment`).text()})`.replace(`()`, ``), // Title
-            $this.next().text(), // Duration
-            $this.parents(`.track-line`).find(`.expand-row dt:contains("Composers")`).next().text() // Artist
-        ]);
-    });
-};
-
-ß.parseTracks = () => {
-    'use strict';
-
-    ß.data.tracks = ß.data.tracks.map((track) => [
-        track[0].split(/^(\d+)\.\s/u),
-        track[1],
-        track[2]
-    ]).map((track) => [
-        ``,
-        track[0][1],
-        track[0][2].toLowerCase(),
-        track[2].replace(/\d+%/gu, ``)
-            .replace(/\([A-Z]+\)/gu, ``)
-            .replace(/\//gu, `, `)
-            .replace(/\[\d+\]/u, ``)
-            .split(`,`)
-            .map((artist) => {
-                ß.data.artistList.add(track[2]);
-
-                return artist.trim();
-            }),
-        track[1].match(/\d\d:\d\d$/u)[0]
-    ]).sort((first, second) => first[1] - second[1]);
-
-    ß.data.totalTracks = ß.data.tracks.length;
-};
-
-ß.scrapeRelease = () => {
-    'use strict';
-
-    const dds = $(`.track-line:first .expand-row dt`).filter(`:contains(Sub-label), :contains(Album), :contains(Album code), :contains(Year)`)
-        .map(function getText () {
-            return this.nextElementSibling.innerText;
+    const scrapeMainTracks = () => {
+        ß.data.tracks = ß.getTracks({
+            trackSelector: `.parent .track-title`,
+            trackParser: (el, numTitle = el.textContent.toLowerCase().match(/^\s*(\d+)\.\s(.+)/u).slice(1)) => ({
+                number: numTitle[0],
+                title: numTitle[1],
+                artist: getTrackComposer(el).nextElementSibling.textContent, // artist
+                duration: el.nextSibling.textContent // duration
+            })
         });
+    };
 
-    Object.assign(ß.data, {
-        catNum: dds[2],
-        label: dds[0].toLowerCase(),
-        releaseArtist: [`various_artists`],
-        releaseName: dds[1].replace(` Vol. `, `, Volume `),
-        url: document.location.href,
-        year: dds[3]
-    });
-};
+    const scrapeAltTracks = () => {
+        ß.data.tracks = [...ß.data.tracks, ...ß.getTracks({
+            trackSelector: `.other-versions > table > tbody > tr > td > p.track-container`,
+            trackParser: (el, parent = el.parentNode, numTitle = parent.textContent.match(/^\s*(\d+)\.\s(.+)/u).slice(1)) => ({
+                number: numTitle[0],
+                title: `${numTitle[1]} (${parent.querySelector(`.comment`).textContent})`.toLowerCase(), // [number, title]
+                artist: getTrackComposer(el).nextElementSibling.textContent, // artist
+                duration: parent.querySelector(`.duration`).textContent //.remove(/^\s*00:/u) // duration
+            })
+        })];
+    };
 
-ß.checkReleaseArtist = () => {
-    'use strict';
+    const getReleaseInfo = () => {
+        const dds = $(`.track-line:first .expand-row dt`).filter(`:contains(Sub-label), :contains(Album), :contains(Album code), :contains(Year)`)
+            .map(function getText () {
+                return this.nextElementSibling.innerText;
+            });
 
-    if (ß.data.artistList.size === 1) { // If only one artist for release's tracks:
-        ß.data.releaseArtist = ß.data.tracks[1][3];
-    }
-};
+        Object.assign(ß.data, {
+            catNum: dds[2],
+            label: dds[0].toLowerCase(),
+            releaseName: dds[1],
+            url: document.location.href,
+            year: dds[3]
+        });
+    };
 
-ß.makeImportButton = () => {
-    'use strict';
+    const makeImportButton = function makeImportButton () {
+        const parameters = ß.buildImportButton({ site: `Musou` }),
+            mbButton = `<td style="width: 28%;text-align:right;color:black;">${MBImport.buildFormHTML(parameters)}</td>`;
 
-    const edit_note = MBImport.makeEditNote(ß.data.url, `Mousou`, ``, `https://github.com/brianfreud/Userscripts/`),
-        releaseObj = ß.buildReleaseObject(`Digital Media`),
-        parameters = MBImport.buildFormParameters(releaseObj, edit_note),
-        mbButton = `<td style="width: 28%;text-align:right;color:black;">${MBImport.buildFormHTML(parameters)}</td>`;
+        $(`.description:first`).after(mbButton);
+    };
 
-    $(`.description:first`).after(mbButton);
-};
-
-ß.scrapeMainTracks();
-ß.scrapeAltTracks();
-ß.parseTracks();
-ß.scrapeRelease();
-ß.checkReleaseArtist();
-ß.makeImportButton();
+    getReleaseInfo();
+    ß.data.tracks = [];
+    scrapeMainTracks();
+    scrapeAltTracks();
+    ß.sortTracks();
+    ß.setTotalTracks();
+    ß.cleanTrackArtists();
+    ß.lookupTrackArtists();
+    ß.setReleaseArtist();
+    makeImportButton();
+}());
