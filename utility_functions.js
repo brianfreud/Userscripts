@@ -25,6 +25,7 @@
 /* eslint          no-plusplus: off */
 /* eslint          no-ternary: off */
 /* eslint          no-whitespace-before-property: off */
+/* eslint          object-curly-spacing: off */
 /* eslint          one-var: off */
 /* eslint          padded-blocks: off */
 /* eslint          prefer-destructuring: off */
