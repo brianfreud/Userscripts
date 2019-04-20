@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name           Import Extreme Music release listings to MusicBrainz
 // @description    Add a button to import Extreme Music release listings to MusicBrainz
-// @version        2019.4.20.0
+// @version        2019.4.20.2
 // @include        https://www.extrememusic.com/albums/*
 // @namespace      https://github.com/brianfreud
-/* global          MBImport, ß, $ */
+/* global          MBImport, ß */
 /* eslint          array-bracket-newline: off */
 /* eslint          array-element-newline: off */
 /* eslint          brace-style: ["error", "stroustrup", { "allowSingleLine": true }] */
@@ -40,7 +40,6 @@
 /* eslint          spaced-comment: off */
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/ExtremeMusic_importer.user.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/ExtremeMusic_importer.user.js
-// @require        https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/utility_functions.js
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/dict_artists.js
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/dict_labels.js
@@ -90,11 +89,18 @@
         const parameters = ß.buildImportButton({
                 site: `Extreme Music`
             }),
-            mbButton = `<div style="background:lightgrey; border-radius:4px; cursor:pointer; margin-top:1em; padding:4px; width:8em;">
-                            ${MBImport.buildFormHTML(parameters)}
-                        </div>`;
+            button = document.createElement(`div`);
 
-        $(`.tracklist-header__info:first`).append(mbButton);
+        Object.assign(button.style, {
+            backgroundColor: `lightgrey`,
+            borderRadius:    `4px`,
+            cursor:          `pointer`,
+            marginTop:       `1em`,
+            padding:         `4px`,
+            width:           `8em`
+        });
+        button.innerHTML = MBImport.buildFormHTML(parameters);
+        document.querySelectorAll(`.tracklist-header__info`)[0].appendChild(button);
     };
 
     (async function processData () {
