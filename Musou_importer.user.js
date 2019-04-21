@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Import Musou release listings to MusicBrainz TEST
 // @description    Add a button to import Musou release listings to MusicBrainz
-// @version        2019.4.21.2
+// @version        2019.4.21.3
 // @include        http://www.musou.gr/music/album/*
 // @namespace      https://github.com/brianfreud
 /* global          MBImport, ß */
@@ -64,11 +64,11 @@
     const scrapeMainTracks = () => {
         ß.data.tracks = ß.getTracks({
             trackSelector: `.parent .track-title`,
-            trackParser: (el, numTitle = el.textContent.toLowerCase().match(/^\s*(\d+)\.\s(.+)/u).slice(1)) => ({
+            trackParser: (el, parent = el.parentNode, numTitle = el.textContent.toLowerCase().match(/^\s*(\d+)\.\s(.+)/u).slice(1)) => ({
                 number: numTitle[0],
                 title: numTitle[1],
                 artist: getTrackComposer(el).nextElementSibling.textContent, // artist
-                duration: el.nextSibling.textContent // duration
+                duration: parent.querySelector(`.duration`).textContent // duration
             })
         });
     };
