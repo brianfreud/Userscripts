@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Import Musou release listings to MusicBrainz TEST
 // @description    Add a button to import Musou release listings to MusicBrainz
-// @version        2019.4.21.0
+// @version        2019.4.21.2
 // @include        http://www.musou.gr/music/album/*
 // @namespace      https://github.com/brianfreud
 /* global          MBImport, ß */
@@ -78,7 +78,9 @@
             trackSelector: `.other-versions > table > tbody > tr > td > p.track-container`,
             trackParser: (el, parent = el.parentNode, numTitle = parent.textContent.match(/^\s*(\d+)\.\s(.+)/u).slice(1)) => ({
                 number: numTitle[0],
-                title: `${numTitle[1]} (${parent.querySelector(`.comment`).textContent})`.toLowerCase(), // [number, title]
+                title: parent.querySelector(`.comment`) === null
+                    ? `${numTitle[1]}`.toLowerCase()
+                    : `${numTitle[1]} (${parent.querySelector(`.comment`).textContent})`.toLowerCase(), // [number, title]
                 artist: getTrackComposer(el).nextElementSibling.textContent, // artist
                 duration: parent.querySelector(`.duration`).textContent //.remove(/^\s*00:/u) // duration
             })
@@ -99,7 +101,7 @@
             label: ifPropExists(`Sub-label`).toLowerCase(),
             releaseName: ifPropExists(`Album`),
             url: document.location.href,
-            year: ifPropExists(`Year`).match(/\d{4}/u)[0] // avoid issues with data like "2019;2019"
+            year: ifPropExists(`Year`)
         });
     };
 
