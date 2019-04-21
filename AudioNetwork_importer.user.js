@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name           Import Audio Network release listings to MusicBrainz TEST
+// @name           Import Audio Network release listings to MusicBrainz
 // @description    Add a button to import Audio Network release listings to MusicBrainz
 // @version        2019.4.21.1
 // @include        https://www.audionetwork.com/browse/m/album/*
