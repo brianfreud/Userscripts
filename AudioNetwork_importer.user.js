@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Import Audio Network release listings to MusicBrainz TEST
 // @description    Add a button to import Audio Network release listings to MusicBrainz
-// @version        2019.4.21.0
+// @version        2019.4.21.1
 // @include        https://www.audionetwork.com/browse/m/album/*
 // @namespace      https://github.com/brianfreud
 /* global          MBImport, ß */
@@ -66,7 +66,7 @@
 
                 Object.assign(ß.data, {
                     day:relDate.getDate(),
-                    month: relDate.getMonth(),
+                    month: relDate.getMonth() + 1,
                     year: relDate.getFullYear()
                 });
 
