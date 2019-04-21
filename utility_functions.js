@@ -1,20 +1,22 @@
 // ==UserScript==
-/* globals MBImport, $ */
 // @name           Utility functions
-// @version        2019.4.16.0
+// @version        2019.4.20.2
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
+/* globals         MBImport */
 /* eslint          array-bracket-newline: off */
 /* eslint          array-element-newline: off */
+/* eslint          brace-style: ["error", "stroustrup", { "allowSingleLine": true }] */
 /* eslint          camelcase: off */
 /* eslint          capitalized-comments: off */
 /* eslint          dot-location: ["error", "property"] */
-/* eslint-env      es6, $ */
+/* eslint-env      es6, jquery */
 /* eslint          id-length: off */
 /* eslint          key-spacing: off */
 /* eslint          line-comment-position: off */
 /* eslint          max-len: off */
+/* eslint          max-lines: off */
 /* eslint          multiline-comment-style: off */
 /* eslint          newline-per-chained-call: off */
 /* eslint          no-extra-parens: ["error", "all", { "nestedBinaryExpressions": false }] */
@@ -25,9 +27,12 @@
 /* eslint          no-plusplus: off */
 /* eslint          no-ternary: off */
 /* eslint          no-whitespace-before-property: off */
+/* eslint          object-curly-spacing: off */
+/* eslint          one-var: off */
 /* eslint          padded-blocks: off */
 /* eslint          prefer-destructuring: off */
 /* eslint          prefer-named-capture-group: off */
+/* eslint          prefer-reflect: off */
 /* eslint          quote-props: ["error", "as-needed"] */
 /* eslint          quotes: ["error", "backtick"] */
 /* eslint          sort-keys: off */
@@ -40,42 +45,157 @@ const ß = {};
 (function strictWrapper () {
     'use strict';
 
+    Object.defineProperties(String.prototype, { // eslint-disable-line no-extend-native
+        /**
+         * Removes a string or regex match from a string.
+         * @extends external:String
+         * @param {string|regex} matcher - The match expression to remove
+         */
+        remove: {
+            value: function value (matcher) {
+                return this.replace(matcher, ``);
+            }
+        },
+
+        /**
+         * Converts a string to titlecase.
+         * @extends external:String
+         */
+        toTitleCase: {
+            value: function value () {
+                return this.toLowerCase()
+                    .split(` `)
+                    .map((a) => a.substr(0, 1).toUpperCase() + a.substr(1))
+                    .join(` `);
+            }
+        }
+    });
+
     Object.assign(ß, {
         data: {},
 
-        buildArtistCredit: (names) => {
-            const creditArr = [];
+        /**
+         * Wrapper for handling track scraping.
+         * @param {Object} obj - An object containing 2 properties
+         * @param {string} obj.trackSelector - A selector {string} that selects all (or a group of) tracks
+         * @param {function} obj.trackParser - A function that extracts to an {object} the data for a single track
+         * @returns {Array} - Array of objects, one for each track's data
+        */
+        getTracks: (obj) => {
+            const allTracks = Object.freeze(document.querySelectorAll(obj.trackSelector).entries()),
+                trackDB = [];
 
-            for (const [i, name] of [...names].entries()) {
-                if (name === `various_artists` || name === `unknown`) {
-                    creditArr.push(MBImport.specialArtist(name));
-                } else {
-                    const creditObj = {
-                        artist_name: ß.toTitleCase(name),
-                        mbid: ß.artistDB[name.toLowerCase()] || ``
-                    };
-
-                    if (names.length > 1) {
-                        if (names.length - 1 !== i) {
-                            creditObj.joinphrase = names.length - 2 === i
-                                ? ` & `
-                                : `, `;
-                        }
-                    }
-                    creditArr.push(creditObj);
-                }
+            for (const [, element] of allTracks) {
+                trackDB.push(obj.trackParser(element));
             }
 
-            return creditArr;
+            return trackDB;
+        },
+
+        // Sorts the track array by track number
+        sortTracks () { ß.data.tracks = ß.data.tracks.sort((first, second) => parseInt(first.number, 10) - parseInt(second.number, 10)); },
+
+        // Sets the total number of tracks to the number of tracks in the track array.
+        // Warning: If the tracklist is incomplete on the site, this number may NOT be the same as the total number of tracks on the release!
+        setTotalTracks () { ß.data.totalTracks = ß.data.tracks.length; },
+
+        // Turns artist data for each tracks into an array of artist names.
+        cleanTrackArtists () {
+            // Turn variations of 'Foo Bar (BMI) 25% [362303688], Caz Dip (ASCAP) 75% [12345678]' into 'Foo Bar, Caz Dip'
+            const cleanArtistInfo = (str) => str
+                .remove(/\[\d+\]/gu)
+                .remove(/(\(…|\s)\d+%/gu) // handle the normal ' 50%' as well as ' (…50%'
+                .remove(new RegExp([
+                    `APRA`,
+                    `ASCAP`,
+                    `BMI`,
+                    `BUMA`,
+                    `GEMA`,
+                    `KODA`,
+                    `PPL`,
+                    `PRS`,
+                    `SACM`,
+                    `SACEM`,
+                    `SESAC`,
+                    `SOCAN`,
+                    `STEMRA`
+                ].join(`|`), `gu`))
+                .remove(/\(\)/gu)
+                .remove(/\s+(?=,)/gu)
+                .trim();
+
+            // Converts artist data into an array of artist names
+            const buildArtistArray = (data) => // eslint-disable-next-line implicit-arrow-linebreak
+                [Array.isArray(data)
+                    ? data
+                    : data.split(/\s*,(?!\s?jr)\s*/gu)
+                ].flat()
+                    .map((name) => name.toTitleCase());
+
+            ß.data.artistList = new Set();
+
+            for (const track of ß.data.tracks) {
+                if (Array.isArray(track.artist)) {
+                    for (let arrayEntry of track.artist) {
+                        arrayEntry = cleanArtistInfo(arrayEntry);
+                    }
+                }
+                else {
+                    track.artist = buildArtistArray(cleanArtistInfo(track.artist));
+                }
+                track.artist = track.artist.sort();
+                ß.data.artistList.add(JSON.stringify(track.artist));
+            }
+        },
+
+        lookupTrackArtists () {
+            const getJoinPhrase = (artistList, i) => {
+                if (artistList.length > 1) {
+                    if (artistList.length - 1 !== i) {
+                        return artistList.length - 2 === i
+                            ? ` & `
+                            : `, `;
+                    }
+                } // else
+
+                return ``;
+            };
+
+            for (const track of ß.data.tracks) {
+                if (track.artist === `unknown`) {
+                    track.artist_credit = [MBImport.specialArtist(`unknown`)];
+                }
+                else {
+                    const creditArray = [];
+
+                    for (const [i, name] of [...track.artist].entries()) {
+                        const credit = {
+                            artist_name: name.toTitleCase(),
+                            joinphrase: getJoinPhrase(track.artist, i),
+                            mbid: ß.artistDB.get(name.toLowerCase()) || ``
+                        };
+
+                        creditArray.push(credit);
+                    }
+                    track.artist_credit = creditArray;
+                }
+            }
+        },
+
+        // Sets the release artist
+        setReleaseArtist () {
+            ß.data.releaseArtist = ß.data.artistList.size === 1 // How many artists for for release's tracks?
+                ? ß.data.tracks[0].artist_credit // One
+                : [MBImport.specialArtist(`various_artists`)]; // Multiple
         },
 
         buildLabelCredit: () => {
-            const label = ß.labelDB.filter((p) => p.name === ß.data.label.toLowerCase()); // Find any label's specific object, if it is in the labelDB array
+            const label = ß.labelDB.filter((labelEntry) => labelEntry.name === ß.data.label.toLowerCase());
 
             if (typeof label === `undefined` || !label.length) {
                 return [{
                     catno: ß.data.catNum,
-                    name: ß.toTitleCase(ß.data.label)
+                    name: ß.data.label.toTitleCase()
                 }];
             } // else
 
@@ -89,29 +209,10 @@ const ß = {};
             }];
         },
 
-        buildTracklistArray: () => {
-            const trackArray = [];
-
-            ß.data.tracks = [...new Set(ß.data.tracks)];
-
-            for (const track of ß.data.tracks) {
-                if (typeof track !== `undefined`) {
-                    trackArray.push({
-                        number: track[1],
-                        title: track[2],
-                        duration: track[4],
-                        artist_credit: ß.buildArtistCredit(track[3])
-                    });
-                }
-            }
-
-            return trackArray;
-        },
-
         buildReleaseObject: (format = `CD`) => {
             const releaseObj = {
-                title: ß.data.releaseName.replace(` - Volume`, `, Volume`),
-                artist_credit: ß.buildArtistCredit(ß.data.releaseArtist),
+                title: ß.data.releaseName.replace(/\s+(?:-\s)?Vol(?:ume)?\.?\s/ui, `, Volume `),
+                artist_credit: ß.data.releaseArtist,
                 type: `album`,
                 status: `official`,
                 language: `eng`,
@@ -126,7 +227,7 @@ const ß = {};
                 }],
                 discs: [{
                     format,
-                    tracks: ß.buildTracklistArray()
+                    tracks: ß.data.tracks
                 }]
             };
 
@@ -135,15 +236,16 @@ const ß = {};
             return releaseObj;
         },
 
+        buildImportButton: (args) => {
+            const edit_note = MBImport.makeEditNote(ß.data.url, args.site, ``, `https://github.com/brianfreud/Userscripts/`),
+                releaseObj = ß.buildReleaseObject(args.type || `Digital Media`);
+
+            return MBImport.buildFormParameters(releaseObj, edit_note);
+        },
+
         formatSeconds: (seconds) => ((seconds - (seconds %= 60)) / 60) + (seconds > 9
             ? `:`
             : `:0`) + seconds,
-
-        toTitleCase: (str) => str
-            .toLowerCase()
-            .split(` `)
-            .map((word) => word.substr(0, 1).toUpperCase() + word.substr(1))
-            .join(` `),
 
         unSortname: (str) => { // Turns "Jones, Bob" back into "Bob Jones"
             const name = str.split(`,`)
