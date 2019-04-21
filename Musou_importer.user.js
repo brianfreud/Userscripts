@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name           Import Musou release listings to MusicBrainz TEST
+// @name           Import Musou release listings to MusicBrainz
 // @description    Add a button to import Musou release listings to MusicBrainz
 // @version        2019.4.21.3
 // @include        http://www.musou.gr/music/album/*
