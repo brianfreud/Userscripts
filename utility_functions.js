@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name           Utility functions
-// @version        2019.4.20.2
+// @version        2019.4.21.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
@@ -103,6 +103,8 @@ const ß = {};
         cleanTrackArtists () {
             // Turn variations of 'Foo Bar (BMI) 25% [362303688], Caz Dip (ASCAP) 75% [12345678]' into 'Foo Bar, Caz Dip'
             const cleanArtistInfo = (str) => str
+                .replace(/(\w\w+),\s(\w\w+)\s\(/gu, `$2 $1 (`) // Fix Baz, Qux (BMI)
+                .replace(/(\w\w+\s\w),\s(\w\w+)\s\(/gu, `$1. $2 (`) // Fix Foo J, Bar (BMI)
                 .remove(/\[\d+\]/gu)
                 .remove(/(\(…|\s)\d+%/gu) // handle the normal ' 50%' as well as ' (…50%'
                 .remove(new RegExp([
