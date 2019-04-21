@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name           Utility functions
-// @version        2019.4.20.2
+// @version        2019.4.21.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
@@ -243,9 +243,13 @@ const ß = {};
             return MBImport.buildFormParameters(releaseObj, edit_note);
         },
 
-        formatSeconds: (seconds) => ((seconds - (seconds %= 60)) / 60) + (seconds > 9
-            ? `:`
-            : `:0`) + seconds,
+        formatSeconds: (seconds) => {
+            seconds = Math.round(seconds);
+
+            return ((seconds - (seconds %= 60)) / 60) + (seconds > 9
+                ? `:`
+                : `:0`) + seconds;
+        },
 
         unSortname: (str) => { // Turns "Jones, Bob" back into "Bob Jones"
             const name = str.split(`,`)
