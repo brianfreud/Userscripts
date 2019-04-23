@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name           Utility functions
-// @version        2019.4.21.1
+// @version        2019.4.23.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
@@ -243,14 +243,16 @@ const ß = {};
             return MBImport.buildFormParameters(releaseObj, edit_note);
         },
 
+        extractDMY: (date) => ({
+            day: date.getDate(),
+            month: date.getMonth() + 1,
+            year: date.getFullYear()
+        }),
+
         convertUNIXDate: (seconds) => {
             const date = new Date(seconds * 1000); // multiply by 1000 to convert seconds to ms for Date()
 
-            return {
-                day: date.getDate(),
-                month: date.getMonth() + 1,
-                year: date.getFullYear()
-            };
+            return ß.extractDMY(date);
         },
 
         formatSeconds: (seconds) => {
