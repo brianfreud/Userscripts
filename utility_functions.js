@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name           Utility functions
-// @version        2019.4.21.1
+// @version        2019.4.23.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
@@ -103,12 +103,9 @@ const ß = {};
         cleanTrackArtists () {
             // Turn variations of 'Foo Bar (BMI) 25% [362303688], Caz Dip (ASCAP) 75% [12345678]' into 'Foo Bar, Caz Dip'
             const cleanArtistInfo = (str) => str
-                .replace(/(\w\w+),\s(\w\w+)\s\(/gu, `$2 $1 (`)      // 'repair' Baz, Qux (BMI)
-                .replace(/(\w\w+\s\w),\s(\w\w+)\s\(/gu, `$1. $2 (`) // 'repair' Foo J, Bar (BMI)
-                .remove(/\s\d+(?:[^,])/gu)                          // remove the non-bracketed number at the end of Waldo Qux (BMI) 100
-                .remove(/\[\d+\]/gu)                                // remove the bracketed number at the end of Foo Bar (BMI) 25% [362303688]
-                .remove(/(\(…|\s)\d+%/gu)                           // remove the normal ' 50%' as well as ' (…50%'
-                .remove(new RegExp([                                // remove the PRO
+                .remove(/\[\d+\]/gu)
+                .remove(/(\(…|\s)\d+%/gu) // handle the normal ' 50%' as well as ' (…50%'
+                .remove(new RegExp([
                     `APRA`,
                     `ASCAP`,
                     `BMI`,
@@ -246,9 +243,25 @@ const ß = {};
             return MBImport.buildFormParameters(releaseObj, edit_note);
         },
 
-        formatSeconds: (seconds) => ((seconds - (seconds %= 60)) / 60) + (seconds > 9
-            ? `:`
-            : `:0`) + seconds,
+        extractDMY: (date) => ({
+            day: date.getDate(),
+            month: date.getMonth() + 1,
+            year: date.getFullYear()
+        }),
+
+        convertUNIXDate: (seconds) => {
+            const date = new Date(seconds * 1000); // multiply by 1000 to convert seconds to ms for Date()
+
+            return ß.extractDMY(date);
+        },
+
+        formatSeconds: (seconds) => {
+            seconds = Math.round(seconds);
+
+            return ((seconds - (seconds %= 60)) / 60) + (seconds > 9
+                ? `:`
+                : `:0`) + seconds;
+        },
 
         unSortname: (str) => { // Turns "Jones, Bob" back into "Bob Jones"
             const name = str.split(`,`)
