@@ -4,8 +4,8 @@
 // @description    Add a button to import Arcadia releases to MusicBrainz
 // @version        2019.3.18.2
 // @namespace      https://github.com/brianfreud
-// @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/arcadia_importer.user.js
-// @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/arcadia_importer.user.js
+// @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/Arcadia_importer.user.js
+// @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/Arcadia_importer.user.js
 // @include        http*://usa.arcadiamusic.com/music/album/*
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/utility_functions.js
