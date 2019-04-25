@@ -1,8 +1,7 @@
 // ==UserScript==
-/* globals         MBImport, $, ß */
 // @name           Import FlipperMusic release listings to MusicBrainz
 // @description    Add a button to import FlipperMusic release listings to MusicBrainz
-// @version        2019.4.11.0
+// @version        2019.4.25.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/FlipperMusic_importer.user.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/FlipperMusic_importer.user.js
@@ -14,114 +13,119 @@
 // @require        https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/lib/mbimport.js
 // @require        https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/lib/mbimportstyle.js
 // @icon           https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/images/Musicbrainz_import_logo.png
+/* global          MBImport, ß */
+/* eslint          array-bracket-newline: off */
+/* eslint          array-element-newline: off */
+/* eslint          brace-style: ["error", "stroustrup", { "allowSingleLine": true }] */
+/* eslint          camelcase: off */
+/* eslint          capitalized-comments: off */
+/* eslint          dot-location: ["error", "property"] */
+/* eslint-env      es6 */
+/* eslint          id-length: off */
+/* eslint          key-spacing: off */
+/* eslint          line-comment-position: off */
+/* eslint          max-len: off */
+/* eslint          max-lines: off */
+/* eslint          multiline-comment-style: off */
+/* eslint          newline-per-chained-call: off */
+/* eslint          no-confusing-arrow: off */
+/* eslint          no-extra-parens: ["error", "all", { "nestedBinaryExpressions": false }] */
+/* eslint          no-inline-comments: off */
+/* eslint          no-invalid-this: off */
+/* eslint          no-magic-numbers: off */
+/* eslint          no-param-reassign: off */
+/* eslint          no-plusplus: off */
+/* eslint          no-return-assign: "error" */
+/* eslint          no-ternary: off */
+/* eslint          no-whitespace-before-property: off */
+/* eslint          object-curly-spacing: off */
+/* eslint          one-var: off */
+/* eslint          padded-blocks: off */
+/* eslint          prefer-destructuring: off */
+/* eslint          prefer-named-capture-group: off */
+/* eslint          prefer-reflect: off */
+/* eslint          quote-props: ["error", "as-needed"] */
+/* eslint          quotes: ["error", "backtick"] */
+/* eslint          sort-keys: off */
+/* eslint          sort-vars: off */
+/* eslint          spaced-comment: off */
 // ==/UserScript==
 
-ß.data.fM_ID = document.URL.match(/\d+/)[0];
+(function strictWrapper () { // eslint-disable-line max-statements
 
-ß.processRelease = (data) => {
-    let rel = data.descCD;
-    const labelLookup = rel.cd_cod.match(/^[A-Z\-]+/);
-    let label = ß.labelDB.filter(p => p.prefix == labelLookup[0]);
-    // If the prefix is in the label db, use that label.  Otherwise use the listed label's name.
-    label = !label.length ? rel.ca_descrizione : label[0].name;
+    'use strict';
 
-    Object.assign(ß.data, {
-        artistList: new Set(),
-        catNum: rel.cd_cod,
-        label,
-        releaseArtist: ["various_artists"],
-        releaseName: rel.cd_titolo,
-        lookupsAllRequested: false,
-        remaining: 0,
-        tracks: [],
-        url: document.location.href,
-        totalTracks: 0
-    });
+    const baseQueryURL = `https://www.flippermusic.it/wp-content/themes/Divi-child/query.php?`;
 
-    const getTrack = (id) => { // Get artist info and info for the related alternate tracks
-            $.ajax({
-                dataType: "json",
-                url: `https://www.flippermusic.it/wp-content/themes/Divi-child/query.php?op=infoSingoloBrano&indBR=1&idBR=${id}`,
-                error: getTrack,
-                success: processTrack
+    ß.data.fM_ID = document.URL.match(/\d+/u)[0];
+
+    const scrapeTracks = async () => {
+        const addTrack = (info, duration, title) => {
+            ß.data.tracks.push({
+                artist: ß.unSortnameSlashString(info.br_autori) || `unknown`,
+                duration: ß.formatSeconds(Math.round(duration)),
+                number: info.br_traccia || info.br_indice + 1,
+                title
             });
-        },
-
-        setTrack = (info, parent) => {
-            ß.data.tracks[info.br_traccia] = [ // Set track info
-                info.br_id, // fM track ID number
-                info.br_traccia, // Track number
-                info.br_titolo, // Track title
-                info.br_autori || "unknown", // track artist
-                ß.formatSeconds(Math.round(parseFloat(info.br_durata_sec))) // Track duration
-            ];
-
-            if ('br_versione' in info) {
-                ß.data.tracks[info.br_traccia][2] = (parent == info.br_versione) ? parent : `${parent} (${info.br_versione})`;
-            }
-        },
-
-        processTrack = (data) => {
-            $('#importCounter').text(--ß.data.remaining);
-
-            // iterate over the alternate tracks
-            for (let altTrack of data.tracce) {
-                setTrack(altTrack, data.traccia.br_titolo);
-            }
-
-            //set artist for the main tracks
-            let trackNum = ß.data.tracks.findIndex(x => x !== undefined && x[0] === data.traccia.br_ids);
-
-            ß.data.tracks[trackNum][3] = data.traccia.br_autori;
-
-            if (!--ß.data.remaining) {
-                postProcessArtists();
-                finishAddProcess();
-            }
-        },
-
-        postProcessArtists = () => {
-            let splitArtist = (artist) => {
-                return artist.split(/\s[\-\/]\s/);
-            };
-            ß.data.tracks = ß.data.tracks.map(track => {
-                ß.data.artistList.add(track[3]);
-                return [track[0], track[1], track[2], ß.unSortnameArray(splitArtist(track[3])), track[4]];
-            });
-            if (ß.data.artistList.size === 1) { // If only one artist for release's tracks,
-                ß.data.releaseArtist = ß.unSortnameArray(splitArtist(ß.data.artistList.entries().next().value[0]));
-            }
-        },
-
-        finishAddProcess = () => {
-            const releaseObj = ß.buildReleaseObject('Digital Media'),
-                edit_note = MBImport.makeEditNote(ß.data.url, 'FlipperMusic', '', 'https://github.com/brianfreud/Userscripts/'),
-                parameters = MBImport.buildFormParameters(releaseObj, edit_note);
-
-            $('#importWorking').empty().append($(MBImport.buildFormHTML(parameters)).addClass('btn'));
         };
 
-    for (let track of data.tracce) {
-        ß.data.totalTracks = ß.data.totalTracks + parseInt(track.br_num_alternative, 10);
+        for (const track of ß.data.rawData.tracce) {
+            // We do actually want to only look up one track at a time, so as to not swamp the server
+            // eslint-disable-next-line no-await-in-loop
+            await fetch(`${baseQueryURL}op=infoSingoloBrano&indBR=1&idBR=${track.br_id}`)
+                .then((response) => {
+                    document.querySelector(`#importCounter`).innerText = --ß.data.tracksRemaining;
 
-        ß.data.remaining = ß.data.remaining + 2;
-        $('#importCounter').text(ß.data.remaining);
-        setTrack(track);
-        getTrack(track.br_id);
-    }
-};
+                    return Object.freeze(response.json());
+                })
+                .then((json) => {
+                    addTrack(json.traccia, track.br_durata_sec, track.br_titolo);
+                    json.tracce.forEach((altTrack) => {
+                        addTrack(altTrack, altTrack.br_durata_sec, `${track.br_titolo} (${altTrack.br_versione.toLowerCase()})`);
+                    });
+                });
+        }
+    };
 
+    const getReleaseInfo = async () => {
+        await fetch(`${baseQueryURL}op=listaTracceCDInfo&traccePerPagina=2000&pagina=1&idCD=${ß.data.fM_ID}`)
+            .then((response) => Object.freeze(response.json()))
+            .then((json) => {
+                const info = json.descCD;
 
-fetch(`https://www.flippermusic.it/wp-content/themes/Divi-child/query.php?op=listaTracceCDInfo&traccePerPagina=2000&pagina=1&idCD=${ß.data.fM_ID}`)
-    .then(response => response.json())
-    .then(data => {
-        $('#importCounter').text(ß.data.remaining);
+                Object.assign(ß.data, {
+                    catNum:info.cd_cod,
+                    label: ß.getLabelFromPrefix(info.cd_cod.match(/^[A-Z-]+/u)[0], info.ca_descrizione),
+                    rawData: json,
+                    releaseName: info.cd_titolo,
+                    tracks: [],
+                    tracksRemaining: json.tracce.length,
+                    url: document.location.href
+                });
+                ß.data.country = ß.getCountryForLabel(ß.data.label);
+            });
+    };
 
-        $('#et-top-navigation').prepend($(`
-			<div style="position: absolute;left: 25%;top: 44%;" id="importWorking">
-			    Working...<span id="importCounter"">all</span> remaining
-			</div>
-		`));
+    const makeImportButton = function makeImportButton () {
+        const parameters = ß.buildImportButton({ site: `FlipperMusic` }),
+            mbButton = MBImport.buildFormHTML(parameters);
 
-        ß.processRelease(data);
-    });
+        document.querySelector(`#importWorking`).innerHTML = (`afterend`, mbButton);
+        //.addClass('btn'));
+    };
+
+    (async function loader () {
+        document.querySelector(`#et-top-navigation`).insertAdjacentHTML(`beforeBegin`, `
+            <div style="position: absolute;left: 25%;top: 44%;" id="importWorking">
+                Working...  <span id="importCounter">All</span> remaining
+            </div>
+        `);
+        await getReleaseInfo();
+        await scrapeTracks();
+        ß.sortTracks();
+        ß.cleanTrackArtists();
+        ß.lookupTrackArtists();
+        ß.setReleaseArtist();
+        makeImportButton();
+    }());
+}());
