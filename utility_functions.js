@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name           Utility functions
-// @version        2019.4.23.0
+// @version        2019.4.25.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
@@ -189,6 +189,17 @@ const ß = {};
                 : [MBImport.specialArtist(`various_artists`)]; // Multiple
         },
 
+        getXForLabel: (lookup, searchField, retVal = searchField, fallback = ``) => {
+            let match = ß.labelDB.filter(label => label[searchField] == lookup);
+            return typeof match !== undefined
+                ? match[0][retVal]
+                : ``;
+        },
+
+        getCountryForLabel: (lookup) => ß.getXForLabel(lookup, `name`, `country`),
+
+        getLabelFromPrefix: (lookup, fallback) => ß.getXForLabel(lookup, `prefix`, `name`, fallback),
+
         buildLabelCredit: () => {
             const label = ß.labelDB.filter((labelEntry) => labelEntry.name === ß.data.label.toLowerCase());
 
@@ -272,6 +283,9 @@ const ß = {};
 
         // Turn ["Jones, Bob"] into ["bob jones"]
         unSortnameArray: (arr) => arr.map((name) => ß.unSortname(name.toLowerCase())),
+
+        // Turn "Bar, Foo / Jones, Bob" into "foo bar, bob jones"
+        unSortnameSlashString: (str) => str.split(`/`).map((name) => ß.unSortname(name)).join(`, `),
 
         getIDText: (str) => ß.$getID(str).text(),
 
