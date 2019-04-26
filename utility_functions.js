@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name           Utility functions
-// @version        2019.4.26.0
+// @version        2019.4.26.1
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
@@ -67,6 +67,18 @@ const ß = {};
                     .split(` `)
                     .map((a) => a.substr(0, 1).toUpperCase() + a.substr(1))
                     .join(` `);
+            }
+        }
+    });
+
+    NodeList.defineProperties(String.prototype, { // eslint-disable-line no-extend-native
+        /**
+         * Wrapper for Array.from to allow cleaner chaining
+         * @extends external:NodeList
+         */
+        toArray: {
+            value: function value (matcher) {
+                return Array.from(this);
             }
         }
     });
