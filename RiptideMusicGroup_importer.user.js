@@ -92,6 +92,7 @@
                     catNum: `RT ${albumData.catalog.id}`,
                     label: albumData.catalog.name,
                     releaseName: albumData.name,
+                    tracks = [],
                     url: document.location.href,
                     rawJSON: json
                 }, ß.convertUNIXDate(json.content[0].headingExtra.releaseDate));
@@ -107,7 +108,6 @@
 
     (async function loader () {
         await getReleaseInfo();
-        ß.data.tracks = [];
         await scrapeTracks(ß.data.rawJSON);
         ß.sortTracks();
         ß.cleanTrackArtists();
