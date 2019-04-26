@@ -79,7 +79,7 @@
             trackParser: (el, parent = el.parentNode, numTitle = parent.textContent.match(/^\s*(\d+)\.\s(.+)/u).slice(1)) => ({
                 number: numTitle[0],
                 title: parent.querySelector(`.comment`) === null
-                    ? `${numTitle[1]}`.toLowerCase()
+                    ? `${numTitle[1].toLowerCase()}`
                     : `${numTitle[1]} (${parent.querySelector(`.comment`).textContent})`.toLowerCase(), // [number, title]
                 artist: getTrackComposer(el).nextElementSibling.textContent, // artist
                 duration: parent.querySelector(`.duration`).textContent //.remove(/^\s*00:/u) // duration
@@ -100,6 +100,7 @@
             catNum: ifPropExists(`Album code`),
             label: ifPropExists(`Sub-label`).toLowerCase(),
             releaseName: ifPropExists(`Album`),
+            tracks = [],
             url: document.location.href,
             year: ifPropExists(`Year`)
         });
@@ -113,7 +114,6 @@
     };
 
     getReleaseInfo();
-    ß.data.tracks = [];
     scrapeMainTracks();
     scrapeAltTracks();
     ß.sortTracks();
