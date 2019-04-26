@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name           Utility functions
-// @version        2019.4.25.0
+// @version        2019.4.26.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
@@ -191,9 +191,9 @@ const ß = {};
 
         getXForLabel: (lookup, searchField, retVal = searchField, fallback = ``) => {
             let match = ß.labelDB.filter(label => label[searchField] == lookup);
-            return typeof match !== undefined
+            return !!match.length
                 ? match[0][retVal]
-                : ``;
+                : fallback;
         },
 
         getCountryForLabel: (lookup) => ß.getXForLabel(lookup, `name`, `country`),
@@ -286,17 +286,5 @@ const ß = {};
 
         // Turn "Bar, Foo / Jones, Bob" into "foo bar, bob jones"
         unSortnameSlashString: (str) => str.split(`/`).map((name) => ß.unSortname(name)).join(`, `),
-
-        getIDText: (str) => ß.$getID(str).text(),
-
-        $getTDs: (node) => $(node).find(`td`),
-
-        getTDText: ($nodes, i) => $.trim($nodes.eq(i).text()),
-
-        buildImportTools: (prefix = ``) => {
-            Object.assign(ß, {
-                $getID: (str) => $(`#${prefix}${str}`)
-            });
-        }
     });
 }());
