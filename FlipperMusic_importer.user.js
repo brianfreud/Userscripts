@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Import FlipperMusic release listings to MusicBrainz
 // @description    Add a button to import FlipperMusic release listings to MusicBrainz
-// @version        2019.4.25.0
+// @version        2019.4.26.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/FlipperMusic_importer.user.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/FlipperMusic_importer.user.js
@@ -110,8 +110,7 @@
         const parameters = ß.buildImportButton({ site: `FlipperMusic` }),
             mbButton = MBImport.buildFormHTML(parameters);
 
-        document.querySelector(`#importWorking`).innerHTML = (`afterend`, mbButton);
-        //.addClass('btn'));
+        document.querySelector(`#importWorking`).innerHTML = mbButton;
     };
 
     (async function loader () {
