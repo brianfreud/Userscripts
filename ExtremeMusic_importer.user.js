@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Import Extreme Music release listings to MusicBrainz
 // @description    Add a button to import Extreme Music release listings to MusicBrainz
-// @version        2019.4.20.2
+// @version        2019.4.26.0
 // @include        https://www.extrememusic.com/albums/*
 // @namespace      https://github.com/brianfreud
 /* global          MBImport, ß */
@@ -78,6 +78,7 @@
             catNum: info.album.album_no,
             label: info.album.series_title,
             releaseName: info.album.title.toTitleCase(),
+            tracks: [],
             year: date[1],
             month: date[2],
             day: date[3],
@@ -100,7 +101,7 @@
             width:           `8em`
         });
         button.innerHTML = MBImport.buildFormHTML(parameters);
-        document.querySelectorAll(`.tracklist-header__info`)[0].appendChild(button);
+        document.querySelector(`.tracklist-header__info`).appendChild(button);
     };
 
     (async function processData () {
@@ -110,7 +111,6 @@
             .then((json) => JSON.parse(json));
 
         getReleaseInfo(info);
-        ß.data.tracks = [];
         scrapeTracks(info);
         ß.sortTracks();
         ß.setTotalTracks();
