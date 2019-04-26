@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name           Utility functions
-// @version        2019.4.26.1
+// @version        2019.4.26.2
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
@@ -71,7 +71,7 @@ const ß = {};
         }
     });
 
-    NodeList.defineProperties(String.prototype, { // eslint-disable-line no-extend-native
+    Object.defineProperties(NodeList.prototype, { // eslint-disable-line no-extend-native
         /**
          * Wrapper for Array.from to allow cleaner chaining
          * @extends external:NodeList
