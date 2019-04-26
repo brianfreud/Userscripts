@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Import Riptide Music Group release listings to MusicBrainz
 // @description    Add a button to import Riptide Music Group release listings to MusicBrainz
-// @version        2019.4.21.0
+// @version        2019.4.26.0
 // @include        https://explore.riptidemusic.com/*
 // @namespace      https://github.com/brianfreud
 /* global          MBImport, ß */
