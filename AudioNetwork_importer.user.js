@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Import Audio Network release listings to MusicBrainz
 // @description    Add a button to import Audio Network release listings to MusicBrainz
-// @version        2019.4.21.1
+// @version        2019.4.26.0
 // @include        https://www.audionetwork.com/browse/m/album/*
 // @namespace      https://github.com/brianfreud
 /* global          MBImport, ß */
@@ -96,6 +96,7 @@
                     label: `Audio Network`,
                     releaseName: json.name,
                     totalTracks: json.trackCount,
+                    tracks = [],
                     url: document.location.href
                 });
             });
@@ -115,7 +116,6 @@
 
     (async function loader () {
         await getReleaseInfo();
-        ß.data.tracks = [];
         await scrapeTracks();
         ß.sortTracks();
         ß.cleanTrackArtists();
