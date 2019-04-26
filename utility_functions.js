@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name           Utility functions
-// @version        2019.4.26.2
+// @version        2019.4.26.3
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
@@ -11,7 +11,7 @@
 /* eslint          camelcase: off */
 /* eslint          capitalized-comments: off */
 /* eslint          dot-location: ["error", "property"] */
-/* eslint-env      es6, jquery */
+/* eslint-env      es6 */
 /* eslint          id-length: off */
 /* eslint          key-spacing: off */
 /* eslint          line-comment-position: off */
