@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Import De Wolfe Music release listings to MusicBrainz
 // @description    Add a button to import De Wolfe Music release listings to MusicBrainz
-// @version        2019.4.21.0
+// @version        2019.4.26.0
 // @include        https://www.dewolfemusic.com/search.php*
 // @namespace      https://github.com/brianfreud
 /* global          MBImport, ß */
@@ -62,10 +62,11 @@
             catNum: relInfo.albums[0].reference,
             label: relInfo.libraries[0].name,
             releaseName: relInfo.albums[0].name.toTitleCase(),
+            tracks = [],
             url: document.location.href
         }, ß.extractDMY(new Date(relInfo.rows[0].releasedate)));
 
-        if (ß.data.label = `De Wolfe Vinyl`) { // replace the modern imprint's name with the name used at the time.
+        if (ß.data.label == `De Wolfe Vinyl`) { // replace the modern imprint's name with the name used at the time.
             ß.data.label = `Music De Wolfe`;
         }
     };
@@ -151,7 +152,6 @@
         await getAlbumID();
         await getReleaseInfo();
         extractReleaseInfo();
-        ß.data.tracks = [];
         extractTrackInfo();
         ß.sortTracks();
         ß.cleanTrackArtists();
