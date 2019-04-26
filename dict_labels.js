@@ -1,7 +1,7 @@
 // ==UserScript==
 /* globals      ß */
 // @name        Label dictionary
-// @version     2019.4.19.0
+// @version     2019.4.26.0
 // @namespace   https: //github.com/brianfreud
 // @downloadURL https: //raw.githubusercontent.com/brianfreud/Userscripts/edit/master/dict_labels.js
 // @updateURL   https: //raw.githubusercontent.com/brianfreud/Userscripts/edit/master/dict_labels.js
@@ -88,6 +88,7 @@
 {name: 'boost tv', country: '', mbid: 'bd71628b-3a10-43ae-aa54-6c64080c1ac6', prefix: 'BOOST TV'},
 {name: 'boston bay records', country: 'US', mbid: '', prefix: 'BBR'},
 {name: 'brand x music', country: 'US', mbid: '7cd4c0ce-0669-4ef1-a265-7649e3ea1aff', prefix: 'BDM'},
+{name: 'brand x music', country: 'US', mbid: '7cd4c0ce-0669-4ef1-a265-7649e3ea1aff', prefix: 'BXMT'},
 {name: 'build destroy music', country: 'US', mbid: '', prefix: 'BDM'},
 {name: 'cavendish archive', country: '', mbid: '', prefix: 'CAVA'},
 {name: 'cavendish classical', country: 'GB', mbid: '89cc9b5d-9c89-44ff-a2f6-1eab2919b3d8', prefix: 'CACL'},
