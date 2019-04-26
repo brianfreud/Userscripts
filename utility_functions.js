@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name           Utility functions
-// @version        2019.4.26.3
+// @version        2019.4.26.4
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
@@ -77,7 +77,7 @@ const ß = {};
          * @extends external:NodeList
          */
         toArray: {
-            value: function value (matcher) {
+            value: function value () {
                 return Array.from(this);
             }
         }
@@ -201,9 +201,11 @@ const ß = {};
                 : [MBImport.specialArtist(`various_artists`)]; // Multiple
         },
 
+        // eslint-disable-next-line max-params
         getXForLabel: (lookup, searchField, retVal = searchField, fallback = ``) => {
-            let match = ß.labelDB.filter(label => label[searchField] == lookup);
-            return !!match.length
+            const match = ß.labelDB.filter((label) => label[searchField] === lookup);
+
+            return match.length
                 ? match[0][retVal]
                 : fallback;
         },
@@ -297,6 +299,6 @@ const ß = {};
         unSortnameArray: (arr) => arr.map((name) => ß.unSortname(name.toLowerCase())),
 
         // Turn "Bar, Foo / Jones, Bob" into "foo bar, bob jones"
-        unSortnameSlashString: (str) => str.split(`/`).map((name) => ß.unSortname(name)).join(`, `),
+        unSortnameSlashString: (str) => str.split(`/`).map((name) => ß.unSortname(name)).join(`, `)
     });
 }());
