@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Import Riptide Music Group release listings to MusicBrainz
 // @description    Add a button to import Riptide Music Group release listings to MusicBrainz
-// @version        2019.4.27.0
+// @version        2019.4.27.1
 // @include        https://explore.riptidemusic.com/*
 // @namespace      https://github.com/brianfreud
 /* global          MBImport, ß */
@@ -92,7 +92,7 @@
                     catNum: `RT ${albumData.catalog.id}`,
                     label: albumData.catalog.name,
                     releaseName: albumData.name,
-                    tracks = [],
+                    tracks: [],
                     url: document.location.href,
                     rawJSON: json
                 }, ß.convertUNIXDate(json.content[0].headingExtra.releaseDate));
