@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Import De Wolfe Music release listings to MusicBrainz
 // @description    Add a button to import De Wolfe Music release listings to MusicBrainz
-// @version        2019.4.27.0
+// @version        2019.4.27.1
 // @include        https://www.dewolfemusic.com/search.php*
 // @namespace      https://github.com/brianfreud
 /* global          MBImport, ß */
@@ -62,7 +62,7 @@
             catNum: relInfo.albums[0].reference,
             label: relInfo.libraries[0].name,
             releaseName: relInfo.albums[0].name.toTitleCase(),
-            tracks = [],
+            tracks: [],
             url: document.location.href
         }, ß.extractDMY(new Date(relInfo.rows[0].releasedate)));
 
@@ -120,7 +120,6 @@
                 .replace(/%3D/gu, `=`);
 
         await fetch(`https://www.dewolfemusic.com/JSON/searchTracks.php`, {
-            cache: `force-cache`,
             credentials: `include`,
             headers: {
                 accept: `*/*`,
