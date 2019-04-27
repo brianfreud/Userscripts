@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Import Audio Network release listings to MusicBrainz
 // @description    Add a button to import Audio Network release listings to MusicBrainz
-// @version        2019.4.26.0
+// @version        2019.4.27.0
 // @include        https://www.audionetwork.com/browse/m/album/*
 // @namespace      https://github.com/brianfreud
 /* global          MBImport, ß */
@@ -54,12 +54,15 @@
 
     'use strict';
 
-    const scrapeTracks = async () => {
-        await fetch(`${ß.data.relJSONurl}/tracks`, {
+    const fetchOpts = {
+            cache: `force-cache`,
             headers: new Headers({
                 'x-api-key': `TTqwdGFMje3EQ6QkzqnOC1KPSRGEQhfp9TLySucT`
             })
-        })
+        };
+
+    const scrapeTracks = async () => {
+        await fetch(`${ß.data.relJSONurl}/tracks`, fetchOpts)
             .then((response) => Object.freeze(response.json()))
             .then((json) => {
                 const relDate = new Date(json[0].releaseDate);
@@ -84,11 +87,7 @@
     const getReleaseInfo = async () => {
         ß.data.relJSONurl = `https://musicapi.audionetwork.com/albums/${document.location.href.match(/\d+$/u)[0]}`;
 
-        await fetch(ß.data.relJSONurl, {
-            headers: new Headers({
-                'x-api-key': `TTqwdGFMje3EQ6QkzqnOC1KPSRGEQhfp9TLySucT`
-            })
-        })
+        await fetch(ß.data.relJSONurl, fetchOpts)
             .then((response) => Object.freeze(response.json()))
             .then((json) => {
                 Object.assign(ß.data, {
