@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Import Riptide Music Group release listings to MusicBrainz
 // @description    Add a button to import Riptide Music Group release listings to MusicBrainz
-// @version        2019.4.26.0
+// @version        2019.4.27.0
 // @include        https://explore.riptidemusic.com/*
 // @namespace      https://github.com/brianfreud
 /* global          MBImport, ß */
@@ -72,7 +72,7 @@
                 });
 
                 if (track.alternates.length) { // eslint-disable-next-line no-await-in-loop
-                    await fetch(`${ß.data.releaseInfoURL}&showAll=1&alt=${track.id}`)
+                    await fetch(`${ß.data.releaseInfoURL}&showAll=1&alt=${track.id}`, { cache: `force-cache` })
                         .then((response) => Object.freeze(response.json()))
                         .then((json) => {
                             scrapeTracks(json, `${i}.`);
@@ -83,7 +83,7 @@
     };
 
     const getReleaseInfo = async () => {
-        await fetch(ß.data.releaseInfoURL)
+        await fetch(ß.data.releaseInfoURL, { cache: `force-cache` })
             .then((response) => Object.freeze(response.json()))
             .then((json) => {
                 const albumData = json.content[0].album;
