@@ -2,7 +2,7 @@
 /* globals         MBImport, ß */
 // @name           Import Arcadia releases to MusicBrainz
 // @description    Add a button to import Arcadia releases to MusicBrainz
-// @version        2019.3.26.0
+// @version        2019.3.27.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/Arcadia_importer.user.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/Arcadia_importer.user.js
@@ -61,7 +61,7 @@
                 tdData = tdNodes.toArray().map((td) => td.innerText.trim()),
                 trackID = tdNodes[0].querySelectorAll(`a`)[0].href.split(`/`).slice(-1),
                 // eslint-disable-next-line no-return-await
-                getArtist = async () => await fetch(`http://usa.arcadiamusic.com/music/track/${trackID}`)
+                getArtist = async () => await fetch(`http://usa.arcadiamusic.com/music/track/${trackID}`, { cache: `force-cache` })
                     .then((response) => response.text())
                     .then((html) => document.createRange().createContextualFragment(html))
                     .then((htmlFrag) => htmlFrag.querySelector(`#MainContent_lblComposer`).innerText);
