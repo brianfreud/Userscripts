@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name           Utility functions
-// @version        2019.4.26.4
+// @version        2019.4.27.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
@@ -77,8 +77,14 @@ const ß = {};
          * @extends external:NodeList
          */
         toArray: {
-            value: function value () {
-                return Array.from(this);
+            value: function value () { // A little more complex, but over 8x faster vs Array.from
+                const arrLen = this.length,
+                    newArray = Array(arrLen);
+
+                for (let i = 0; i < arrLen; i++) {
+                    newArray[i] = this[i];
+                }
+                return newArray;
             }
         }
     });
