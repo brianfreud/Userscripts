@@ -71,7 +71,7 @@
         for (const track of ß.data.rawData.tracce) {
             // We do actually want to only look up one track at a time, so as to not swamp the server
             // eslint-disable-next-line no-await-in-loop
-            await fetch(`${baseQueryURL}op=infoSingoloBrano&indBR=1&idBR=${track.br_id}`)
+            await fetch(`${baseQueryURL}op=infoSingoloBrano&indBR=1&idBR=${track.br_id}`, { cache: `force-cache` })
                 .then((response) => {
                     document.querySelector(`#importCounter`).innerText = --ß.data.tracksRemaining;
 
@@ -87,7 +87,7 @@
     };
 
     const getReleaseInfo = async () => {
-        await fetch(`${baseQueryURL}op=listaTracceCDInfo&traccePerPagina=2000&pagina=1&idCD=${ß.data.fM_ID}`)
+        await fetch(`${baseQueryURL}op=listaTracceCDInfo&traccePerPagina=2000&pagina=1&idCD=${ß.data.fM_ID}`, { cache: `force-cache` })
             .then((response) => Object.freeze(response.json()))
             .then((json) => {
                 const info = json.descCD;
