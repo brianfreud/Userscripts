@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name           Utility functions
-// @version        2019.4.27.0
+// @version        2019.4.30.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
@@ -26,6 +26,7 @@
 /* eslint          no-param-reassign: off */
 /* eslint          no-plusplus: off */
 /* eslint          no-ternary: off */
+/* eslint          no-unused-expressions: ["error", { "allowShortCircuit": true }] */
 /* eslint          no-whitespace-before-property: off */
 /* eslint          object-curly-spacing: off */
 /* eslint          one-var: off */
@@ -84,6 +85,7 @@ const ß = {};
                 for (let i = 0; i < arrLen; i++) {
                     newArray[i] = this[i];
                 }
+
                 return newArray;
             }
         }
@@ -305,6 +307,22 @@ const ß = {};
         unSortnameArray: (arr) => arr.map((name) => ß.unSortname(name.toLowerCase())),
 
         // Turn "Bar, Foo / Jones, Bob" into "foo bar, bob jones"
-        unSortnameSlashString: (str) => str.split(`/`).map((name) => ß.unSortname(name)).join(`, `)
+        unSortnameSlashString: (str) => str.split(`/`).map((name) => ß.unSortname(name)).join(`, `),
+
+        // Turns a string of HTML into a DOMFragment
+        makeFragmentFromString (str) {
+            const template = document.createElement(`template`);
+
+            template.innerHTML = str;
+
+            return template.content;
+        },
+
+        // Deletes a node from the DOM
+        deleteNode (selector) {
+            const node = document.querySelector(selector);
+
+            (node !== null) && node.remove();
+        }
     });
 }());
