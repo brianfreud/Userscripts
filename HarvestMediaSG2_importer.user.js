@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Import Harvest Media SG2 release listings to MusicBrainz
 // @description    Add a button to import Harvest Media (SG2-style servers) release listings to MusicBrainz
-// @version        2019.4.30.0
+// @version        2019.4.30.1
 // @include        http*://echomusicpg.sg2.harvestmedia.net*
 // @include        http*://indiesonics.sg2.harvestmedia.net*
 // @include        http*://liftmusic.sg2.harvestmedia.net*
@@ -139,7 +139,9 @@
             mbButton = MBImport.buildFormHTML(parameters);
 
         document.querySelector(`.albumTrackView_AlbumInfoCenter`)
-            .insertAdjacentHTML(`beforeend`, `<div id="importButton">${mbButton}</div>`);
+            .insertAdjacentHTML(`beforeend`, `<br><div id="importButton">${mbButton}</div>`);
+        document.querySelector(`#importButton button`).style.cssText = `padding: 4px; border-radius: 4px;`;
+        document.querySelector(`#importButton button span`).style.cssText = `font-size: 13px; vertical-align: top;`;
     };
 
     const setListener = function setListener () {
