@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name           Utility functions
-// @version        2019.4.30.0
+// @version        2019.5.2.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
@@ -323,6 +323,13 @@ const ß = {};
             const node = document.querySelector(selector);
 
             (node !== null) && node.remove();
+        },
+
+        // Convert a string with HTML entities into an HTML string without them.
+        unentity(str) {
+            var holder = document.createElement(`textarea`);
+            holder.innerHTML = str;
+            return holder.value;
         }
     });
 }());
