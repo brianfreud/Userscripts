@@ -52,8 +52,8 @@
 /* eslint          sort-keys: off */
 /* eslint          sort-vars: off */
 /* eslint          spaced-comment: off */
-// @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/HarvestMediaSG2_importer.user.js
-// @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/HarvestMediaSG2_importer.user.js
+// @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/HarvestMediaSG2+3_importer.user.js
+// @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/HarvestMediaSG2+3_importer.user.js
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/utility_functions.js
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/dict_artists.js
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/dict_labels.js
