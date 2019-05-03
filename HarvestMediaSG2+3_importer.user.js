@@ -1,14 +1,16 @@
 // ==UserScript==
 // @name           Import Harvest Media SG2/SG3 release listings to MusicBrainz
 // @description    Add a button to import Harvest Media (SG2 & SG3 servers) release listings to MusicBrainz
-// @version        2019.5.2.0
+// @version        2019.5.3.0
 // @include        http*://www.westonemusic.com*
 // @include        http*://echomusicpg.sg2.harvestmedia.net*
 // @include        http*://indiesonics.sg2.harvestmedia.net*
 // @include        http*://liftmusic.sg2.harvestmedia.net*
+// @include        http*://attentionmusic.sg3.harvestmedia.net*
 // @include        http*://redigloomusic.sg2.harvestmedia.net*
 // @include        http*://search.twelvetonesproductionmusic.com*
 // @include        http*://sg2.harvestmedia.net*
+// @include        http*://sg3.harvestmedia.net*
 // @include        http*://synchromusic.sg2.harvestmedia.net*
 // @include        http*://searchmusic.twistedjukebox.com*
 // @include        http*://www.shoutmusicsync.com*
@@ -69,13 +71,13 @@
     const displayError = function displayError (errMsg) {
         if (ß.data.MODE === `SG2`) {
             document.querySelector(`.albumTrackView_AlbumInfoCenter`)
-                .insertAdjacentHTML(`beforeend`, `<br><div id="importError" style="color:red;font-size:125%;font-weight:900;">${errMsg}</div>`);
+                .appendChild(ß.makeFragmentFromString(`<div id="importError" style="color:red;font-size:125%;font-weight:900;"><br>${errMsg}</div>`));
         }
 
         // -----------------------------------------------------------------
 
         else if (ß.data.MODE === `SG3`) {
-// TODO
+            // TO DO
         }
 
         // -----------------------------------------------------------------
@@ -90,12 +92,6 @@
         // -----------------------------------------------------------------
 
     };
-
-    const getArtistForTrack = (trackNum) => ß.data.MOREINFO_HTML
-        .querySelector(`.moreInfoRow[objectid="${ß.data.TRACK_JSON[trackNum - 1].id}"]`)
-        .querySelector(`.composerinfo`)
-        .nextSibling
-        .textContent;
 
     const populateLabelDB = async function populateLabelDB () {
         if (!Object.prototype.hasOwnProperty.call(ß.data, `LABELS`)) {
@@ -198,24 +194,39 @@
     };
 
     const setTracksInfo = async function setTracksInfo () {
-        const data = ß.data.TRACK_JSON;
+        const data = ß.data.TRACK_JSON,
+            getArtistForTrack = (trackID) => {
+                const artist = ß.data.MOREINFO_HTML
+                    .querySelector(`.moreInfoRow[objectid="${trackID}"]`)
+                    .querySelector(`.composerinfo`)
+                    .nextSibling
+                    .textContent;
+
+                return artist.length
+                    ? artist
+                    : `unknown`; // Artist name field in the data is blank
+            };
+
+        ß.data.trackNumbers = new Set();
 
         for (const track of data) {
             if (ß.data.MODE === `SG2`) {
-                //const [number, title] = ((arr) => [parseInt(arr[1], 10), arr[2]])(track.title.split(/^(\d+)\s(.+)/u));
-                const [number, title] = ((arr) => [parseInt(arr[1], 10), arr[2]])(track.title.split(/.*trk(\d\d\d)\s(.+)/gu));
+                const titlePattern1 = /.*trk(?<number>\d\d\d)\s(?<title>.+)/iu,
+                    titlePattern2 = /^(?<number>\d+)\s(?:-\s)?(?<title>.+)/u,
+                    splitTitle = track.title.split(titlePattern1),
+                    [number, title] = ((arr) => [parseInt(arr[1], 10), arr[2]])(splitTitle.length === 1
+                        ? track.title.split(titlePattern2)
+                        : splitTitle);
 
                 let artist; // eslint-disable-line init-declarations
 
                 try {
-                    console.log(number)
-                    console.dir(ß.data);
-                    artist = getArtistForTrack(number);
+                    artist = getArtistForTrack(track.id);
                 }
-                catch (err) { // The track number isn't in the artist info, indicating that the release listing is incomplete.
+                catch (err) { // The track ID isn't in the artist info
                     ß.data.errorState = 1;
-                    console.error(err);
-                    displayError(`The release listing is incomplete.`);
+                    console.error(err); // eslint-disable-line no-console
+                    displayError(`The release listing has incomplete artist information.`);
 
                     return;
                 }
@@ -226,6 +237,7 @@
                     number,
                     title
                 });
+                ß.data.trackNumbers.add(number);
             }
 
             // -----------------------------------------------------------------
@@ -255,6 +267,7 @@
                 }
 
                 ß.data.tracks.push(trackObj);
+                ß.data.trackNumbers.add(trackObj.number);
             }
 
             // -----------------------------------------------------------------
@@ -266,6 +279,11 @@
                 return;
             }
         }
+
+        if (Math.max(...ß.data.trackNumbers) !== ß.data.tracks.length) {
+            displayError(`The release listing is incomplete.  Highest track number is ${Math.max(...ß.data.trackNumbers)}, but only ${ß.data.tracks.length} tracks are listed.`);
+            ß.data.errorState = 1;
+        }
     };
 
     const makeImportButton = function makeImportButton () {
@@ -276,8 +294,8 @@
         // The entire page is contained in a form already, so we have to go outside of that form and use absolute positioning for this form.
         if (document.querySelector(`#test`) === null) {
             if (ß.data.MODE === `SG2`) {
-                document.querySelector(`.albumTrackView_AlbumInfoCenter`)
-                    .insertAdjacentHTML(`beforeend`, `<div id="test" style="width: 100px; height: 30px;">`);
+                document.querySelector(`.albumTrackView_AlbumInfoRightBottom`)
+                    .setAttribute(`id`, `test`);
             }
 
             // -----------------------------------------------------------------
@@ -302,10 +320,13 @@
         const testPos = document.querySelector(`#test`).getBoundingClientRect();
 
         document.querySelector(`body`).insertAdjacentHTML(`beforeend`, `<br><div id="importButton"
-            style="position: absolute; top: ${testPos.top + 85}px;right: ${testPos.right + 100}px; z-index: 2000;">${mbButton}</div>`);
+            style="position: absolute; top: ${testPos.top}px; left: ${testPos.left}px; z-index: 2000;">${mbButton}</div>`);
         document.querySelector(`#importButton button`).style.cssText = `padding: 4px; border-radius: 4px;`;
         document.querySelector(`#importButton button span`).style.cssText = `font-size: 13px; vertical-align: top;`;
-        ß.deleteNode(`#test`);
+
+        if (ß.data.MODE === `SG3`) {
+            ß.deleteNode(`#test`);
+        }
     };
 
     const setListener = function setListener (albumMenuNode) {
