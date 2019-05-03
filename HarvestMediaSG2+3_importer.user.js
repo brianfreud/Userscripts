@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Import Harvest Media SG2/SG3 release listings to MusicBrainz
 // @description    Add a button to import Harvest Media (SG2 & SG3 servers) release listings to MusicBrainz
-// @version        2019.5.3.0
+// @version        2019.5.3.1
 // @include        http*://www.westonemusic.com*
 // @include        http*://echomusicpg.sg2.harvestmedia.net*
 // @include        http*://indiesonics.sg2.harvestmedia.net*
@@ -291,18 +291,23 @@
             mbButton = MBImport.buildFormHTML(parameters);
 
         // -----------------------------------------------------------------
-        // The entire page is contained in a form already, so we have to go outside of that form and use absolute positioning for this form.
+
+        // The entire page is contained in a form already.  By placing the MB button's form in the shadow DOM, we can bypass the restriction on placing forms inside of forms in the DOM.
+
+        let mbBtnPos; // eslint-disable-line init-declarations
+
         if (document.querySelector(`#test`) === null) {
             if (ß.data.MODE === `SG2`) {
-                document.querySelector(`.albumTrackView_AlbumInfoRightBottom`)
-                    .setAttribute(`id`, `test`);
+                mbBtnPos = document.querySelector(`.albumTrackView_AlbumInfoRightTop`)
+                    .setAttribute(`id`, `mbPos`);
             }
 
             // -----------------------------------------------------------------
 
             else if (ß.data.MODE === `SG3`) {
-                document.querySelector(`.searchBar__icons, .player-bottom-options-holder`)
-                    .insertAdjacentHTML(`beforebegin`, `<div id="test" style="width: 100px; height: 30px;">`);
+                document.querySelector(`.searchBar__icons, .album-code-information`)
+                    .appendChild(ß.makeFragmentFromString(`<div id="mbPos" style="width: 100px; height: 30px; white-space: nowrap;">`));
+                mbBtnPos = document.querySelector(`#mbPos`);
             }
 
             // -----------------------------------------------------------------
@@ -317,24 +322,22 @@
             // -----------------------------------------------------------------
         }
 
-        const testPos = document.querySelector(`#test`).getBoundingClientRect();
+        const mbForm = ß.makeFragmentFromString(`<br><div id="importButton" >${mbButton}</div>`);
 
-        document.querySelector(`body`).insertAdjacentHTML(`beforeend`, `<br><div id="importButton"
-            style="position: absolute; top: ${testPos.top}px; left: ${testPos.left}px; z-index: 2000;">${mbButton}</div>`);
-        document.querySelector(`#importButton button`).style.cssText = `padding: 4px; border-radius: 4px;`;
-        document.querySelector(`#importButton button span`).style.cssText = `font-size: 13px; vertical-align: top;`;
-
-        if (ß.data.MODE === `SG3`) {
-            ß.deleteNode(`#test`);
+        if (!mbBtnPos.shadowRoot) {
+            mbBtnPos.attachShadow({mode: `open`});
         }
+
+        mbBtnPos.shadowRoot.appendChild(mbForm);
     };
 
     const setListener = function setListener (albumMenuNode) {
         albumMenuNode.addEventListener(`click`, (e) => {
             let albumID, requestPromise, objectcode; // eslint-disable-line init-declarations
+            const mbBtnPos = document.querySelector(`#mbPos`);
 
             ß.deleteNode(`#importError`);
-            ß.deleteNode(`#importButton`);
+            mbBtnPos !== null && mbBtnPos.shadowRoot && (mbBtnPos.shadowRoot.innerHTML = ``); // Remove any pre-existing buttons
 
             if (e.target.tagName === `A`) {
                 albumID = e.target.getAttribute(`objectid`) || e.target.getAttribute(`objectname`); // generic SG2 sites
