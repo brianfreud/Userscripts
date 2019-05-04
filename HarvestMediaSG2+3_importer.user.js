@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Import Harvest Media SG2/SG3 release listings to MusicBrainz
 // @description    Add a button to import Harvest Media (SG2 & SG3 servers) release listings to MusicBrainz
-// @version        2019.5.3.1
+// @version        2019.5.4.3
 // @include        http*://www.westonemusic.com*
 // @include        http*://echomusicpg.sg2.harvestmedia.net*
 // @include        http*://indiesonics.sg2.harvestmedia.net*
@@ -211,7 +211,7 @@
 
         for (const track of data) {
             if (ß.data.MODE === `SG2`) {
-                const titlePattern1 = /.*trk(?<number>\d\d\d)\s(?<title>.+)/iu,
+                const titlePattern1 = /.*trk(?<number>\d+)\s(?<title>.+)/iu,
                     titlePattern2 = /^(?<number>\d+)\s(?:-\s)?(?<title>.+)/u,
                     splitTitle = track.title.split(titlePattern1),
                     [number, title] = ((arr) => [parseInt(arr[1], 10), arr[2]])(splitTitle.length === 1
@@ -280,9 +280,19 @@
             }
         }
 
-        if (Math.max(...ß.data.trackNumbers) !== ß.data.tracks.length) {
-            displayError(`The release listing is incomplete.  Highest track number is ${Math.max(...ß.data.trackNumbers)}, but only ${ß.data.tracks.length} tracks are listed.`);
-            ß.data.errorState = 1;
+        const highestTrackNumber = Math.max(...ß.data.trackNumbers);
+
+        if (highestTrackNumber !== ß.data.tracks.length) {
+            displayError(`The release listing is incomplete.  Highest track number is ${highestTrackNumber}, but only ${ß.data.tracks.length} tracks are listed.`);
+            ß.data.errorState = 2; // Recoverable error
+
+            const missingTracks = ß.getArrayDifference(ß.makeSequentialIntFilledArray(highestTrackNumber, 1), ß.data.trackNumbers);
+
+            missingTracks.forEach((i) => ß.data.tracks.push({
+                artist: `unknown`,
+                number: i,
+                title: `[unknown]`
+            }));
         }
     };
 
@@ -296,33 +306,38 @@
 
         let mbBtnPos; // eslint-disable-line init-declarations
 
-        if (document.querySelector(`#test`) === null) {
-            if (ß.data.MODE === `SG2`) {
-                mbBtnPos = document.querySelector(`.albumTrackView_AlbumInfoRightTop`)
-                    .setAttribute(`id`, `mbPos`);
-            }
-
-            // -----------------------------------------------------------------
-
-            else if (ß.data.MODE === `SG3`) {
-                document.querySelector(`.searchBar__icons, .album-code-information`)
-                    .appendChild(ß.makeFragmentFromString(`<div id="mbPos" style="width: 100px; height: 30px; white-space: nowrap;">`));
-                mbBtnPos = document.querySelector(`#mbPos`);
-            }
-
-            // -----------------------------------------------------------------
-
-            else {
-                displayError(`Unknown mode for site.`);
-                ß.data.errorState = 1;
-
-                return;
-            }
-
-            // -----------------------------------------------------------------
+        if (ß.data.MODE === `SG2`) {
+            mbBtnPos = document.querySelector(`.albumTrackView_AlbumInfoRightTop`);
+            mbBtnPos.setAttribute(`id`, `mbPos`);
         }
 
+        // -----------------------------------------------------------------
+
+        else if (ß.data.MODE === `SG3`) {
+            if (document.querySelector(`#mbPos`) === null) {
+                document.querySelector(`.searchBar__icons, .album-code-information`)
+                    .appendChild(ß.makeFragmentFromString(`<div id="mbPos" style="width: 100px; height: 30px; white-space: nowrap;">`));
+            }
+            mbBtnPos = document.querySelector(`#mbPos`);
+        }
+
+        // -----------------------------------------------------------------
+
+        else {
+            displayError(`Unknown mode for site.`);
+            ß.data.errorState = 1;
+
+            return;
+        }
+
+        // -----------------------------------------------------------------
+
+
         const mbForm = ß.makeFragmentFromString(`<br><div id="importButton" >${mbButton}</div>`);
+
+        if (ß.data.errorState === 2) { // Missing tracks
+            mbForm.querySelector(`span`).textContent = `Import anyway`;
+        }
 
         if (!mbBtnPos.shadowRoot) {
             mbBtnPos.attachShadow({mode: `open`});
@@ -458,7 +473,7 @@
             requestPromise.then(async () => {
                 setReleaseInfo();
                 await setTracksInfo();
-                if (!ß.data.errorState) {
+                if (ß.data.errorState !== 1) {
                     ß.sortTracks();
                     ß.cleanTrackArtists();
                     ß.lookupTrackArtists();
