@@ -309,6 +309,9 @@ const ß = {};
         // Turn "Bar, Foo / Jones, Bob" into "foo bar, bob jones"
         unSortnameSlashString: (str) => str.split(`/`).map((name) => ß.unSortname(name)).join(`, `),
 
+        // Turn "Bar, Foo & Jones, Bob" into "foo bar, bob jones"
+        unSortnameAmpString: (str) => str.split(`&`).map((name) => ß.unSortname(name)).join(`, `),
+
         // Turns a string of HTML into a DOMFragment
         makeFragmentFromString (str) {
             const template = document.createElement(`template`);
