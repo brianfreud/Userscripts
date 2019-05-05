@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name           Utility functions
-// @version        2019.5.4.0
+// @version        2019.5.5.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
@@ -326,24 +326,33 @@ const ß = {};
         },
 
         // Convert a string with HTML entities into an HTML string without them.
-        unentity(str) {
-            var holder = document.createElement(`textarea`);
+        unentity (str) {
+            const holder = document.createElement(`textarea`);
+
             holder.innerHTML = str;
+
             return holder.value;
         },
 
         /**
-         * Creates an array containing sequential int values
-        /* @param {int} size - optional, sets the size of the resulting array.  If omitted, an empty array of size 0 is created.
-        /* @param {int} init - optional, sets the value of the first int in the array.  If omitted, starts with 0.
+         * @param {int} size Optional, sets the size of the resulting array.  If omitted, an empty array of size 0 is created.
+         * @param {int} init Optional, sets the value of the first int in the array.  If omitted, starts with 0.
+         * @returns {array} Array containing sequential integer values
          */
-        makeSequentialIntFilledArray: (size = 0, init = 0) => Array(size).fill().map((j) => init++),
+        makeSequentialIntFilledArray: (size = 0, init = 0) => Array(size).fill().map(() => init++),
 
         /**
-         * Creates an array containing only the values found in arrA but NOT in arrB
-        /* @param {array} arrA - the array to compare against
-        /* @param {array|set} arrB - the array to compare from.  A set can also be used.
+         * @param {array} arrA - the array to compare against
+         * @param {array|set} arrB - the array to compare from.  A set can also be used.
+         * @returns {array} An array containing only the values found in arrA but NOT in arrB
          */
-        getArrayDifference: (arrA, arrB) => arrA.filter(x => ![...arrB].includes(x))
+        getArrayDifference: (arrA, arrB) => arrA.filter((x) => ![...arrB].includes(x)),
+
+        /**
+         * Converts an object containing key:value pairs into a URI argument string
+         * @param {object} args
+         * @returns {string}
+         */
+        makeArgString: (args) => Object.entries(args).map(([arg, val]) => `${arg}=${val}`).join(`&`)
     });
 }());
