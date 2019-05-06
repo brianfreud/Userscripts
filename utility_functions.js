@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name           Utility functions
-// @version        2019.5.5.1
+// @version        2019.5.5.2
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
@@ -307,7 +307,7 @@ const ß = {};
         unSortnameArray: (arr) => arr.map((name) => ß.unSortname(name.toLowerCase())),
 
         // Turn "Bar, Foo / Jones, Bob" and "Bar, Foo & Jones, Bob" into "foo bar, bob jones"
-        unSortnameString: (str) => str.split(/[\/&]/gu).map((name) => ß.unSortname(name)).join(`, `),
+        unSortnameString: (str) => str.split(/\/|&/gu).map((name) => ß.unSortname(name)).join(`, `),
 
         // Turns a string of HTML into a DOMFragment
         makeFragmentFromString (str) {
