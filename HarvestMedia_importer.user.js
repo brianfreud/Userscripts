@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Import Harvest Media SG2/SG3/LIVE release listings to MusicBrainz
-// @description    Add a button to import Harvest Media (LIVE, SG2 & SG3 servers) release listings to MusicBrainz
-// @version        2019.5.5.0
+// @description    Add a button to import Harvest Media (LIVE, SG2 & SG3-based servers) release listings to MusicBrainz
+// @version        2019.5.5.1
 // @include        http*://live.harvestmedia.net*
 // @include        http*://www.westonemusic.com*
 // @include        http*://echomusicpg.sg2.harvestmedia.net*
@@ -55,8 +55,8 @@
 /* eslint          sort-keys: off */
 /* eslint          sort-vars: off */
 /* eslint          spaced-comment: off */
-// @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/HarvestMediaSG2+3_importer.user.js
-// @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/HarvestMediaSG2+3_importer.user.js
+// @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/HarvestMedia_importer.user.js
+// @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/HarvestMedia_importer.user.js
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/utility_functions.js
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/dict_artists.js
 // @require        https://raw.githubusercontent.com/brianfreud/Userscripts/master/dict_labels.js
@@ -254,7 +254,7 @@
                     trackID = ß.data.MOREINFO_HTML.querySelector(`#album_contentid_${number - 1}`).value;
 
                 ß.data.tracks.push({
-                    artist: ß.unSortnameAmpString(ß.data.MOREINFO_HTML.querySelector(`#album_composer_${trackID}`).value),
+                    artist: ß.unSortnameString(ß.data.MOREINFO_HTML.querySelector(`#album_composer_${trackID}`).value),
                     duration: ß.formatSeconds(track.duration),
                     number,
                     title: ß.unentity(track.title).toLowerCase()
