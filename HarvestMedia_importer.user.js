@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Import Harvest Media SG2/SG3/LIVE release listings to MusicBrainz
 // @description    Add a button to import Harvest Media (LIVE, SG2 & SG3-based servers) release listings to MusicBrainz
-// @version        2019.5.5.1
+// @version        2019.5.6.2
 // @include        http*://live.harvestmedia.net*
 // @include        http*://www.westonemusic.com*
 // @include        http*://echomusicpg.sg2.harvestmedia.net*
@@ -72,36 +72,61 @@
     const GET = `GET`,
         POST = `POST`;
 
+    const displayMsg = function displayMsg (msg = ``, isError = 0) {
+        let msgDiv = document.querySelector(`#importMsg`);
+
+        if (msgDiv !== null) { // eslint-disable-line no-negated-condition
+            msgDiv.textContent = msg;
+        }
+        else {
+            msgDiv = ß.makeFragmentFromString(`<br><div id="importMsg" style="font-size:125%;font-weight:900;">${msg}</div>`);
+
+            // -----------------------------------------------------------------
+
+            if (ß.data.MODE === `LIVE`) {
+                document.querySelector(`#tblNavBar`).parentNode.parentNode.nextElementSibling.querySelector(`td`)
+                    .appendChild(msgDiv);
+            }
+
+            // -----------------------------------------------------------------
+
+            else if (ß.data.MODE === `SG2`) {
+                document.querySelector(`.albumTrackView_AlbumInfoCenter`)
+                    .appendChild(msgDiv);
+            }
+
+            // -----------------------------------------------------------------
+
+            else if (ß.data.MODE === `SG3`) {
+                const waitForSearchBar = () => {
+                        const searchBar = document.querySelector(`.searchBar__searchCrumbs, #nowPlayingHolder`);
+
+                        if (searchBar !== null) {
+                            clearInterval(checker); // eslint-disable-line no-use-before-define
+                            searchBar.appendChild(msgDiv);
+                        }
+                    },
+                    checker = setInterval(waitForSearchBar, 100);
+            }
+
+            // -----------------------------------------------------------------
+
+            else console[isError ? `error` : `log`](msg); // eslint-disable-line curly, no-console, multiline-ternary
+
+            // -----------------------------------------------------------------
+        }
+        document.querySelector(`#importMsg`).style.color = ß.data.errorState === 0
+            ? `slategray`
+            : `red`;
+    };
+
     const displayError = function displayError (errMsg) {
-        // -----------------------------------------------------------------
-
-        if (ß.data.MODE === `LIVE`) {
-            // TO DO
-        }
-
-        // -----------------------------------------------------------------
-
-        else if (ß.data.MODE === `SG2`) {
-            document.querySelector(`.albumTrackView_AlbumInfoCenter`)
-                .appendChild(ß.makeFragmentFromString(`<div id="importError" style="color:red;font-size:125%;font-weight:900;"><br>${errMsg}</div>`));
-        }
-
-        // -----------------------------------------------------------------
-
-        else if (ß.data.MODE === `SG3`) {
-            // TO DO
-        }
-
-        // -----------------------------------------------------------------
-
-        else console.log(errMsg); // eslint-disable-line curly, no-console
-
-        // -----------------------------------------------------------------
+        ß.data.errorState === 0 && (ß.data.errorState = 1);
+        displayMsg(errMsg, 1);
     };
 
     const setBadMode = () => {
         displayError(`Unknown mode for site.`);
-        ß.data.errorState = 1;
     };
 
     const populateLabelDB = async function populateLabelDB () {
@@ -299,7 +324,7 @@
                 const trackObj = {
                     duration: ß.formatSeconds(track.Duration || track.duration),
                     number: parseInt(track.TrackNumber || track.trackNumber, 10),
-                    title: ß.unentity(track.title || track.Title.remove(`Tk${track.TrackNumber} `)).toLowerCase()
+                    title: ß.unentity(track.title || track.Title.remove(`Tk${track.TrackNumber} `).remove(/^\d+\.\s/u)).toLowerCase()
                 };
 
                 if (Object.prototype.hasOwnProperty.call(track, `Composer`)) { // generic SG3
@@ -375,7 +400,7 @@
 
         else if (ß.data.MODE === `SG3`) {
             if (document.querySelector(`#mbPos`) === null) {
-                document.querySelector(`.searchBar__icons, .album-code-information`)
+                document.querySelector(`.searchBar__searchCrumbs, .searchBar__icons, .album-code-information`)
                     .appendChild(ß.makeFragmentFromString(`<div id="mbPos" style="width: 100px; height: 30px; white-space: nowrap;">`));
             }
             mbBtnPos = document.querySelector(`#mbPos`);
@@ -397,6 +422,7 @@
             mbBtnPos.attachShadow({mode: `open`});
         }
 
+        ß.data.errorState === 0 && displayMsg();
         mbBtnPos.shadowRoot.appendChild(mbForm);
     };
 
@@ -407,10 +433,12 @@
             // <-- Clean up anything from any previous release that may have been loaded this session
             const mbBtnPos = document.querySelector(`#mbPos`);
 
-            ß.deleteNode(`#importError`);
+            ß.data.errorState = 0;
             Object.prototype.hasOwnProperty.call(ß.data, `reqArgs`) && Object.prototype.hasOwnProperty.call(ß.data.reqArgs, `collectionid`) && (ß.data.reqArgs.collectionid = ``);
             mbBtnPos !== null && mbBtnPos.shadowRoot && (mbBtnPos.shadowRoot.innerHTML = ``); // Remove any pre-existing buttons
             // --> Finished cleaning up
+
+            displayMsg(`MusicBrainz importer is working…`);
 
             if (e.target.tagName === `A`) {
                 albumID = e.target.getAttribute(`objectid`) || e.target.getAttribute(`objectname`); // generic SG2 sites
@@ -432,10 +460,9 @@
                 albumID = e.target.parentNode.parentNode.getAttribute(`object-id`);
             }
             else { // Item clicked was not an album item
+                displayMsg();
                 return; // eslint-disable-line no-useless-return
             }
-
-            ß.data.errorState = 0;
 
             // -----------------------------------------------------------------
 
@@ -625,7 +652,7 @@
 
         const waitForMenu = async () => {
                 const noLibraryVar = document.querySelector(`#librariesSortable, #leftNavContainer, .jspPane`),
-                    hasLibraryVar = document.querySelector(`.searchlanding`);
+                    hasLibraryVar = document.querySelector(`#divLibrariesPage`);
 
                 if (noLibraryVar !== null || (hasLibraryVar !== null && typeof libraries === `string`)) {
                     clearInterval(checker); // eslint-disable-line no-use-before-define
