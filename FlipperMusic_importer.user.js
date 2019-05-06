@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Import FlipperMusic release listings to MusicBrainz
 // @description    Add a button to import FlipperMusic release listings to MusicBrainz
-// @version        2019.4.27.0
+// @version        2019.5.5.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/master/FlipperMusic_importer.user.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/master/FlipperMusic_importer.user.js
@@ -61,7 +61,7 @@
     const scrapeTracks = async () => {
         const addTrack = (info, duration, title) => {
             ß.data.tracks.push({
-                artist: ß.unSortnameSlashString(info.br_autori) || `unknown`,
+                artist: ß.unSortnameString(info.br_autori) || `unknown`,
                 duration: ß.formatSeconds(Math.round(duration)),
                 number: info.br_traccia || info.br_indice + 1,
                 title
