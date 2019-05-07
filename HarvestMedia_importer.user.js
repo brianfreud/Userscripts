@@ -1,7 +1,12 @@
 // ==UserScript==
-// @name           Import Harvest Media SG2/SG3/LIVE release listings to MusicBrainz
-// @description    Add a button to import Harvest Media (LIVE, SG2 & SG3-based servers) release listings to MusicBrainz
-// @version        2019.5.6.2
+// @name           Import Harvest Media SG2/SG3/SGL/LIVE release listings to MusicBrainz
+// @description    Add a button to import Harvest Media (LIVE, SG2, SG3, & SGL-based servers) release listings to MusicBrainz
+// @version        2019.5.7.0
+// @include        http*://allsortsmusic.sgl.harvestmedia.net*
+// @include        http*://www.soundscapepublishing.com*
+// @include        http*://squirky.sgl.harvestmedia.net*
+// @include        http*://epicscore.sgl.harvestmedia.net*
+// @include        http*://evolution.sgl.harvestmedia.net*
 // @include        http*://live.harvestmedia.net*
 // @include        http*://www.westonemusic.com*
 // @include        http*://echomusicpg.sg2.harvestmedia.net*
@@ -111,6 +116,25 @@
 
             // -----------------------------------------------------------------
 
+            else if (ß.data.MODE === `SGL`) {
+                const holderDiv = document.createElement(`DIV`),
+                    shadowDiv = document.createElement(`DIV`),
+                    logo = document.querySelector(`.navbar-brand`),
+                    scale = 330 / logo.offsetWidth;
+
+                Object.assign(holderDiv, {
+                    id: `mbPos`,
+                    style: `right: 12%; position: absolute; width: 23em;`
+                });
+                shadowDiv.setAttribute(`id`, `shadowPos`);
+                holderDiv.append(msgDiv, shadowDiv);
+                document.querySelector(`#divMasterHeadSearchContent`).after(holderDiv);
+
+                scale < 1 && logo.setAttribute(`style`, `transform: scale(${scale});`); // Some logos are so wide that they overlap the msg/button area.  This fixes that.
+            }
+
+            // -----------------------------------------------------------------
+
             else console[isError ? `error` : `log`](msg); // eslint-disable-line curly, no-console, multiline-ternary
 
             // -----------------------------------------------------------------
@@ -206,6 +230,12 @@
 
             // -----------------------------------------------------------------
 
+            else if (ß.data.MODE === `SGL`) {
+                // Nothing needed
+            }
+
+            // -----------------------------------------------------------------
+
             else setBadMode(); // eslint-disable-line curly
 
             // -----------------------------------------------------------------
@@ -219,8 +249,8 @@
 
         Object.assign(ß.data, {
             catNum: data.AlbumCode || data.albumCode,
-            label: data.albumLibraryName || ß.data.LABELS.filter((labelEntry) => labelEntry.id === (data.LibraryIdEnc || data.LibraryId))[0].name,
-            releaseName: ß.unentity(data.albumName || data.DisplayTitle.remove(`${data.AlbumCode} `) || data.CdTitle),
+            label: data.albumLibraryName || data.albumCatalogue || ß.data.LABELS.filter((labelEntry) => labelEntry.id === (data.LibraryIdEnc || data.LibraryId))[0].name,
+            releaseName: ß.unentity(data.albumTitle || data.albumName || data.DisplayTitle.remove(`${data.AlbumCode} `) || data.CdTitle),
             tracks: []
         });
 
@@ -242,6 +272,13 @@
         else if (ß.data.MODE === `SG3`) {
             ß.data.url = document.location.href;
             Object.assign(ß.data, ß.extractDMY(new Date(data.ReleaseDate || data.albumReleased)));
+        }
+
+        // -----------------------------------------------------------------
+
+        else if (ß.data.MODE === `SGL`) {
+            ß.data.url = `${document.location.origin}/album/${data.albumCode}`;
+            Object.assign(ß.data, ß.extractDMY(new Date(data.albumReleased)));
         }
 
         // -----------------------------------------------------------------
@@ -269,6 +306,7 @@
             };
 
         ß.data.trackNumbers = new Set();
+        ß.data.editTrackCount = 0;
 
         for (const track of data) {
 
@@ -350,13 +388,47 @@
 
             // -----------------------------------------------------------------
 
+            else if (ß.data.MODE === `SGL`) {
+                const info = ß.data.MOREINFO_HTML,
+                    artist = info.querySelector(`[objectid="${track.id}"]`).parentNode.parentNode.querySelector(`.track-unit-composer`).textContent,
+                    number = parseInt(info.querySelector(`[objectid="${track.id}"].featured-track-unit-code`).textContent, 10);
+
+                ß.data.tracks.push({
+                    artist,
+                    duration: ß.formatSeconds(track.duration),
+                    number,
+                    title: info.querySelector(`[objectid="${track.id}"].featured-track-unit-title`).textContent
+                });
+                ß.data.trackNumbers.add(number);
+
+                if (track.edits.all_trackedits.length > 0) {
+                    for (const edit of track.edits.all_trackedits) {
+                        const thisEdit = info.querySelector(`[objectid="${edit.id}"]`).parentNode,
+                            editnum = parseFloat(thisEdit.querySelector(`.version-code span`).textContent);
+
+                        ß.data.tracks.push({
+                            artist,
+                            duration: ß.formatSeconds(edit.duration),
+                            number: editnum,
+                            title: `${thisEdit.querySelector(`.version-title span`).textContent} (${edit.version.toLowerCase()})`
+                        });
+                        editnum % 1 === 0 // eslint-disable-line no-unused-expressions
+                            ? ß.data.trackNumbers.add(editnum)
+                            : ß.data.editTrackCount++;
+                    }
+                }
+            }
+
+            // -----------------------------------------------------------------
+
             else setBadMode(); // eslint-disable-line curly
+
         }
 
         const highestTrackNumber = Math.max(...ß.data.trackNumbers);
 
-        if (highestTrackNumber !== ß.data.tracks.length) {
-            displayError(`The release listing is incomplete.  Highest track number is ${highestTrackNumber}, but only ${ß.data.tracks.length} tracks are listed.`);
+        if (highestTrackNumber !== (ß.data.tracks.length - ß.data.editTrackCount)) {
+            displayError(`The release listing is incomplete.  Highest track number is ${highestTrackNumber}, but only ${(ß.data.tracks.length - ß.data.editTrackCount)} tracks are listed.`);
             ß.data.errorState = 2; // Recoverable error
 
             const missingTracks = ß.getArrayDifference(ß.makeSequentialIntFilledArray(highestTrackNumber, 1), ß.data.trackNumbers);
@@ -408,6 +480,12 @@
 
         // -----------------------------------------------------------------
 
+        else if (ß.data.MODE === `SGL`) {
+            mbBtnPos = document.querySelector(`#shadowPos`);
+        }
+
+        // -----------------------------------------------------------------
+
         else setBadMode(); // eslint-disable-line curly
 
         // -----------------------------------------------------------------
@@ -431,7 +509,7 @@
             let albumID, requestPromise, objectcode; // eslint-disable-line init-declarations
 
             // <-- Clean up anything from any previous release that may have been loaded this session
-            const mbBtnPos = document.querySelector(`#mbPos`);
+            const mbBtnPos = document.querySelector(`#shadowPos`);
 
             ß.data.errorState = 0;
             Object.prototype.hasOwnProperty.call(ß.data, `reqArgs`) && Object.prototype.hasOwnProperty.call(ß.data.reqArgs, `collectionid`) && (ß.data.reqArgs.collectionid = ``);
@@ -445,6 +523,9 @@
                 if (albumID === null) {
                     if (ß.data.MODE === `LIVE`) { // LIVE
                         ß.data.reqArgs.collectionid = albumID = e.target.getAttribute(`onclick`).match(/'(.+)'/u)[1]; // eslint-disable-line no-multi-assign
+                    }
+                    else if (ß.data.MODE === `SGL`) { // SGL
+                        albumID = e.target.getAttribute(`href`).split(`/`)[2];
                     }
                     else { // West One Music, (others?)
                         const shareLink = e.target.parentNode.parentNode.querySelector(`.share-button`);
@@ -461,6 +542,7 @@
             }
             else { // Item clicked was not an album item
                 displayMsg();
+
                 return; // eslint-disable-line no-useless-return
             }
 
@@ -587,6 +669,34 @@
 
             // -----------------------------------------------------------------
 
+            else if (ß.data.MODE === `SGL`) {
+                requestPromise = fetch(`${document.location.origin}/Handlers/GetAlbum.ashx?actionidentifier=album&albumcode=${albumID}`, {
+                    body: null,
+                    cache: `force-cache`,
+                    method: GET
+                })
+                    .then((txt) => txt.text())
+                    .then((txt) => eval(txt)) // eslint-disable-line no-eval
+                    .then((json) => {
+                        Object.defineProperties(ß.data, {
+                            ALBUM_JSON: {
+                                value: Object.freeze(json),
+                                writable: true
+                            },
+                            TRACK_JSON: {
+                                value: Object.freeze(eval(json.tracksJson).all_tracks), // eslint-disable-line no-eval
+                                writable: true
+                            },
+                            MOREINFO_HTML: {
+                                value: ß.makeFragmentFromString(json.tracksHtml),
+                                writable: true
+                            }
+                        });
+                    });
+            }
+
+            // -----------------------------------------------------------------
+
             else setBadMode(); // eslint-disable-line curly
 
             // -----------------------------------------------------------------
@@ -631,6 +741,12 @@
 
         // -----------------------------------------------------------------
 
+        else if (ß.data.MODE === `SGL`) {
+            // None currently
+        }
+
+        // -----------------------------------------------------------------
+
         else setBadMode(); // eslint-disable-line curly
 
         // -----------------------------------------------------------------
@@ -645,13 +761,15 @@
                 return `SG2`;
             case typeof preMeta === `string` || typeof SG3_Config === `object`:
                 return `SG3`;
+            case typeof homepageOption === `string`:
+                return `SGL`;
             default:
                 return `unknown`;
             }
         })(true);
 
         const waitForMenu = async () => {
-                const noLibraryVar = document.querySelector(`#librariesSortable, #leftNavContainer, .jspPane`),
+                const noLibraryVar = document.querySelector(`#librariesSortable, #leftNavContainer, .jspPane, .album-grid`),
                     hasLibraryVar = document.querySelector(`#divLibrariesPage`);
 
                 if (noLibraryVar !== null || (hasLibraryVar !== null && typeof libraries === `string`)) {
