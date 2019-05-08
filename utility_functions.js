@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name           Utility functions
-// @version        2019.5.5.2
+// @version        2019.5.8.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
@@ -119,10 +119,9 @@ const ß = {};
         // Warning: If the tracklist is incomplete on the site, this number may NOT be the same as the total number of tracks on the release!
         setTotalTracks () { ß.data.totalTracks = ß.data.tracks.length; },
 
-        // Turns artist data for each tracks into an array of artist names.
-        cleanTrackArtists () {
-            // Turn variations of 'Foo Bar (BMI) 25% [362303688], Caz Dip (ASCAP) 75% [12345678]' into 'Foo Bar, Caz Dip'
-            const cleanArtistInfo = (str) => str
+        // Turn variations of 'Foo Bar (BMI) 25% [362303688], Caz Dip (ASCAP) 75% [12345678]' into 'Foo Bar, Caz Dip'
+        cleanArtistInfo (inputVal) {
+            const clean = (str) => str
                 .remove(/\[\d+\]/gu)
                 .remove(/(\(…|\s)\d+%/gu) // handle the normal ' 50%' as well as ' (…50%'
                 .remove(new RegExp([
@@ -143,7 +142,19 @@ const ß = {};
                 .remove(/\(\)/gu)
                 .remove(/\s+(?=,)/gu)
                 .trim();
+            if (Array.isArray(inputVal)) {
+                return inputVal.map(x => clean(x));
+            }
+            else if (typeof inputVal === `string`) {
+                return clean(inputVal);
+            }
+            else {
+                console.warn(`Input to cleanArtistInfo is not a valid type.`);
+            }
+        },
 
+        // Turns artist data for each tracks into an array of artist names.
+        cleanTrackArtists () {
             // Converts artist data into an array of artist names
             const buildArtistArray = (data) => // eslint-disable-next-line implicit-arrow-linebreak
                 [Array.isArray(data)
@@ -156,12 +167,10 @@ const ß = {};
 
             for (const track of ß.data.tracks) {
                 if (Array.isArray(track.artist)) {
-                    for (let arrayEntry of track.artist) {
-                        arrayEntry = cleanArtistInfo(arrayEntry);
-                    }
+                    track.artist = ß.cleanArtistInfo(track.artist);
                 }
                 else {
-                    track.artist = buildArtistArray(cleanArtistInfo(track.artist));
+                    track.artist = buildArtistArray(ß.cleanArtistInfo(track.artist));
                 }
                 track.artist = track.artist.sort();
                 ß.data.artistList.add(JSON.stringify(track.artist));
