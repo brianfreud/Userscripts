@@ -1,7 +1,16 @@
 // ==UserScript==
 // @name           Import Harvest Media SG2/SG3/SGL/LIVE release listings to MusicBrainz
 // @description    Add a button to import Harvest Media (LIVE, SG2, SG3, & SGL-based servers) release listings to MusicBrainz
-// @version        2019.5.7.0
+// @version        2019.5.8.0
+// @include        http*://www.tunedock.ie*
+// @include        http*://www.brilliantmusic.co.uk*
+// @include        http*://www.beatsfresh.com*
+// @include        http*://search.pennybanktunes.com*
+// @include        http*://www.ultraphonic.co.uk*
+// @include        http*://www.9livesmusic.com*
+// @include        http*://music.pedigreecuts.com*
+// @include        http*://www.cityandvine.com*
+// @include        http*://www.hensteethmusic.com*
 // @include        http*://allsortsmusic.sgl.harvestmedia.net*
 // @include        http*://www.soundscapepublishing.com*
 // @include        http*://squirky.sgl.harvestmedia.net*
@@ -130,7 +139,7 @@
                 holderDiv.append(msgDiv, shadowDiv);
                 document.querySelector(`#divMasterHeadSearchContent`).after(holderDiv);
 
-                scale < 1 && logo.setAttribute(`style`, `transform: scale(${scale});`); // Some logos are so wide that they overlap the msg/button area.  This fixes that.
+                scale < 1 && logo.setAttribute(`style`, `transform: scale(${scale}); left: 0;`); // Some logos are so wide that they overlap the msg/button area.  This fixes that.
             }
 
             // -----------------------------------------------------------------
@@ -306,6 +315,7 @@
             };
 
         ß.data.trackNumbers = new Set();
+        ß.data.trackIDs = new Set();
         ß.data.editTrackCount = 0;
 
         for (const track of data) {
@@ -390,31 +400,37 @@
 
             else if (ß.data.MODE === `SGL`) {
                 const info = ß.data.MOREINFO_HTML,
-                    artist = info.querySelector(`[objectid="${track.id}"]`).parentNode.parentNode.querySelector(`.track-unit-composer`).textContent,
+                    getArtist = (id) => ß.cleanArtistInfo(info.querySelector(`[objectid="${id}"]:not([parentobjectid]).playtrack`).parentNode.parentNode.querySelectorAll(`.track-unit-composer`).toArray().map(x => x.textContent)),
+                    artist = getArtist(track.id),
                     number = parseInt(info.querySelector(`[objectid="${track.id}"].featured-track-unit-code`).textContent, 10);
-
-                ß.data.tracks.push({
-                    artist,
-                    duration: ß.formatSeconds(track.duration),
-                    number,
-                    title: info.querySelector(`[objectid="${track.id}"].featured-track-unit-title`).textContent
-                });
+                if (!ß.data.trackIDs.has(track.id)) {
+                    ß.data.tracks.push({
+                        artist,
+                        duration: ß.formatSeconds(track.duration),
+                        number,
+                        title: info.querySelector(`[objectid="${track.id}"].featured-track-unit-title`).textContent
+                    });
+                    ß.data.trackIDs.add(track.id);
+                }
                 ß.data.trackNumbers.add(number);
 
                 if (track.edits.all_trackedits.length > 0) {
                     for (const edit of track.edits.all_trackedits) {
-                        const thisEdit = info.querySelector(`[objectid="${edit.id}"]`).parentNode,
-                            editnum = parseFloat(thisEdit.querySelector(`.version-code span`).textContent);
-
-                        ß.data.tracks.push({
-                            artist,
-                            duration: ß.formatSeconds(edit.duration),
-                            number: editnum,
-                            title: `${thisEdit.querySelector(`.version-title span`).textContent} (${edit.version.toLowerCase()})`
-                        });
-                        editnum % 1 === 0 // eslint-disable-line no-unused-expressions
-                            ? ß.data.trackNumbers.add(editnum)
-                            : ß.data.editTrackCount++;
+                        if (!ß.data.trackIDs.has(edit.id)) {
+                            const thisEdit = info.querySelector(`[objectid="${edit.id}"]`),
+                                artist = getArtist(thisEdit.getAttribute(`parentobjectid`)),
+                                editnum = parseFloat(thisEdit.parentNode.querySelector(`.version-code span`).textContent);
+                            ß.data.tracks.push({
+                                artist,
+                                duration: ß.formatSeconds(edit.duration),
+                                number: editnum,
+                                title: `${thisEdit.parentNode.querySelector(`.version-title span`).textContent} (${edit.version.toLowerCase()})`
+                            });
+                            editnum % 1 === 0 // eslint-disable-line no-unused-expressions
+                                ? ß.data.trackNumbers.add(editnum)
+                                : ß.data.editTrackCount++;
+                            ß.data.trackIDs.add(edit.id);
+                        }
                     }
                 }
             }
@@ -512,6 +528,7 @@
             const mbBtnPos = document.querySelector(`#shadowPos`);
 
             ß.data.errorState = 0;
+            ß.data.editTrackCount = 0;
             Object.prototype.hasOwnProperty.call(ß.data, `reqArgs`) && Object.prototype.hasOwnProperty.call(ß.data.reqArgs, `collectionid`) && (ß.data.reqArgs.collectionid = ``);
             mbBtnPos !== null && mbBtnPos.shadowRoot && (mbBtnPos.shadowRoot.innerHTML = ``); // Remove any pre-existing buttons
             // --> Finished cleaning up
