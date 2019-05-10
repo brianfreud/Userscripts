@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Import Harvest Media SG2/SG3/SGL/LIVE release listings to MusicBrainz
 // @description    Add a button to import Harvest Media (LIVE, SG2, SG3, & SGL-based servers) release listings to MusicBrainz
-// @version        2019.5.8.0
+// @version        2019.5.10.0
 // @include        http*://www.tunedock.ie*
 // @include        http*://www.brilliantmusic.co.uk*
 // @include        http*://www.beatsfresh.com*
@@ -30,7 +30,7 @@
 // @include        http*://searchmusic.twistedjukebox.com*
 // @include        http*://www.shoutmusicsync.com*
 // @namespace      https://github.com/brianfreud
-/* global          MBImport, ß, libraries */
+/* global          MBImport, ß, libraries, AlbumService, TrackService */
 /* eslint          array-bracket-newline: off */
 /* eslint          array-element-newline: off */
 /* eslint          brace-style: ["error", "stroustrup", { "allowSingleLine": true }] */
@@ -93,7 +93,7 @@
             msgDiv.textContent = msg;
         }
         else {
-            msgDiv = ß.makeFragmentFromString(`<br><div id="importMsg" style="font-size:125%;font-weight:900;">${msg}</div>`);
+            msgDiv = ß.makeFragmentFromString(`<div id="importMsg" style="font-size:125%;font-weight:900; color: slategray;">${msg}</div>`);
 
             // -----------------------------------------------------------------
 
@@ -144,13 +144,25 @@
 
             // -----------------------------------------------------------------
 
+            else if (ß.data.MODE === `9LIVES`) {
+                document.querySelector(`#searchBoxContainer`)
+                    .appendChild(msgDiv);
+            }
+
+            // -----------------------------------------------------------------
+
             else console[isError ? `error` : `log`](msg); // eslint-disable-line curly, no-console, multiline-ternary
 
             // -----------------------------------------------------------------
         }
-        document.querySelector(`#importMsg`).style.color = ß.data.errorState === 0
-            ? `slategray`
-            : `red`;
+
+        const msgIndicator = document.querySelector(`#importMsg`);
+
+        if (msgIndicator !== null) {
+            msgIndicator.style.color = ß.data.errorState === 0
+                ? `slategray`
+                : `red`;
+        }
     };
 
     const displayError = function displayError (errMsg) {
@@ -212,7 +224,7 @@
             // -----------------------------------------------------------------
 
             else if (ß.data.MODE === `SG3`) {
-                if (typeof libraries === `string`) { // West One Music (others?)
+                if (typeof libraries === `string`) { // West One Music, (others?)
                     for (const label of JSON.parse(libraries)) {
                         ß.data.LABELS.push({
                             id: label.IDEnc,
@@ -245,6 +257,12 @@
 
             // -----------------------------------------------------------------
 
+            else if (ß.data.MODE === `9LIVES`) {
+                // Nothing needed
+            }
+
+            // -----------------------------------------------------------------
+
             else setBadMode(); // eslint-disable-line curly
 
             // -----------------------------------------------------------------
@@ -253,25 +271,40 @@
         }
     };
 
+    const addArtLink = (url) => {
+        const waitForRender = () => {
+                const artLoc = document.querySelector(`.albumHeader__artContainer, .album-playlist-cover-holder, .albumTrackView_AlbumInfoCenter, #divAlbumInfoContent_album tr:nth-child(2) td:nth-child(5), .page-album-cover, .albumContainerHeader__text`);
+
+                if (artLoc !== null) {
+                    clearInterval(checker); // eslint-disable-line no-use-before-define
+                    artLoc.appendChild(ß.makeFragmentFromString(`<a id="importerArtLink" href="${url}" target="_blank">Artwork link</a>`));
+                }
+            },
+            checker = setInterval(waitForRender, 100);
+    };
+
     const setReleaseInfo = function setReleaseInfo () {
         const data = ß.data.ALBUM_JSON;
 
         Object.assign(ß.data, {
-            catNum: data.AlbumCode || data.albumCode,
-            label: data.albumLibraryName || data.albumCatalogue || ß.data.LABELS.filter((labelEntry) => labelEntry.id === (data.LibraryIdEnc || data.LibraryId))[0].name,
-            releaseName: ß.unentity(data.albumTitle || data.albumName || data.DisplayTitle.remove(`${data.AlbumCode} `) || data.CdTitle),
+            catNum: data.AlbumCode || data.albumCode || data.Code,
+            label: data.albumLibraryName || data.albumCatalogue || data.LibraryName || ß.data.LABELS.filter((labelEntry) => labelEntry.id === (data.LibraryIdEnc || data.LibraryId))[0].name,
+            releaseName: ß.unentity(data.albumTitle || data.albumName || data.CdTitle || data.Name || data.DisplayTitle),
             tracks: []
         });
+        ß.data.releaseName = ß.data.releaseName.remove(`${data.AlbumCode} `);
 
         // -----------------------------------------------------------------
 
         if (ß.data.MODE === `LIVE`) {
+            addArtLink(data.art.match(/^(.+)\/\d+\/\d+/u)[1]);
             ß.data.url = `${document.location.origin}/player.aspx?${ß.makeArgString(ß.data.reqArgs)}`;
         }
 
         // -----------------------------------------------------------------
 
         else if (ß.data.MODE === `SG2`) {
+            addArtLink(data.AlbumArtUrl.match(/^(.+)\/\d+\/\d+/u)[1]);
             ß.data.url = `${document.location.origin}/album/${data.IdEnc}${document.location.search}`;
             Object.assign(ß.data, ß.extractDMY(new Date(data.ReleaseDate || data.albumReleased)));
         }
@@ -279,6 +312,12 @@
         // -----------------------------------------------------------------
 
         else if (ß.data.MODE === `SG3`) {
+            if (Object.prototype.hasOwnProperty.call(data, `albumArt`)) {
+                addArtLink(data.albumArt.match(/^(.+)\/\d+\/\d+/u)[1]);
+            }
+            if (Object.prototype.hasOwnProperty.call(data, `AlbumArtUrl`)) {
+                addArtLink(data.AlbumArtUrl.remove(`/{width}/{height}`));
+            }
             ß.data.url = document.location.href;
             Object.assign(ß.data, ß.extractDMY(new Date(data.ReleaseDate || data.albumReleased)));
         }
@@ -286,8 +325,16 @@
         // -----------------------------------------------------------------
 
         else if (ß.data.MODE === `SGL`) {
+            addArtLink(data.albumImage.match(/src="(.+)\/\d+\/\d+/u)[1]);
             ß.data.url = `${document.location.origin}/album/${data.albumCode}`;
             Object.assign(ß.data, ß.extractDMY(new Date(data.albumReleased)));
+        }
+
+        // -----------------------------------------------------------------
+
+        else if (ß.data.MODE === `9LIVES`) {
+            addArtLink(data.ImageUrl.remove(`/800/800`));
+            ß.data.url = `${document.location.origin}/#/album/${data.Code}/${data.Name.toLowerCase().replace(/\s/gu, `-`)}`;
         }
 
         // -----------------------------------------------------------------
@@ -300,7 +347,7 @@
         }
     };
 
-    const setTracksInfo = async function setTracksInfo () {
+    const setTracksInfo = async function setTracksInfo () { // eslint-disable-line complexity
         const data = ß.data.TRACK_JSON,
             getArtistForTrack = (trackID) => {
                 const artist = ß.data.MOREINFO_HTML
@@ -372,8 +419,10 @@
                 const trackObj = {
                     duration: ß.formatSeconds(track.Duration || track.duration),
                     number: parseInt(track.TrackNumber || track.trackNumber, 10),
-                    title: ß.unentity(track.title || track.Title.remove(`Tk${track.TrackNumber} `).remove(/^\d+\.\s/u)).toLowerCase()
+                    title: ß.unentity(track.title || track.Title).remove(`Tk${track.TrackNumber} `).remove(/^\d+\.\s/u).toTitleCase()
                 };
+
+                (track.version || track.Version) && ß.unentity(trackObj.title = `${trackObj.title} (${(track.version || track.Version).toLowerCase()})`);
 
                 if (Object.prototype.hasOwnProperty.call(track, `Composer`)) { // generic SG3
                     trackObj.artist = track.Composer;
@@ -400,9 +449,10 @@
 
             else if (ß.data.MODE === `SGL`) {
                 const info = ß.data.MOREINFO_HTML,
-                    getArtist = (id) => ß.cleanArtistInfo(info.querySelector(`[objectid="${id}"]:not([parentobjectid]).playtrack`).parentNode.parentNode.querySelectorAll(`.track-unit-composer`).toArray().map(x => x.textContent)),
+                    getArtist = (id) => ß.cleanArtistInfo(info.querySelector(`[objectid="${id}"]:not([parentobjectid]).playtrack`).parentNode.parentNode.querySelectorAll(`.track-unit-composer`).toArray().map((x) => x.textContent)),
                     artist = getArtist(track.id),
                     number = parseInt(info.querySelector(`[objectid="${track.id}"].featured-track-unit-code`).textContent, 10);
+
                 if (!ß.data.trackIDs.has(track.id)) {
                     ß.data.tracks.push({
                         artist,
@@ -416,12 +466,13 @@
 
                 if (track.edits.all_trackedits.length > 0) {
                     for (const edit of track.edits.all_trackedits) {
-                        if (!ß.data.trackIDs.has(edit.id)) {
+                        if (!ß.data.trackIDs.has(edit.id)) { // eslint-disable-line max-depth
                             const thisEdit = info.querySelector(`[objectid="${edit.id}"]`),
-                                artist = getArtist(thisEdit.getAttribute(`parentobjectid`)),
+                                thisArtist = getArtist(thisEdit.getAttribute(`parentobjectid`)),
                                 editnum = parseFloat(thisEdit.parentNode.querySelector(`.version-code span`).textContent);
+
                             ß.data.tracks.push({
-                                artist,
+                                artist: thisArtist,
                                 duration: ß.formatSeconds(edit.duration),
                                 number: editnum,
                                 title: `${thisEdit.parentNode.querySelector(`.version-title span`).textContent} (${edit.version.toLowerCase()})`
@@ -437,8 +488,28 @@
 
             // -----------------------------------------------------------------
 
-            else setBadMode(); // eslint-disable-line curly
+            else if (ß.data.MODE === `9LIVES`) {
+                const processTrack = (thisTrack) => {
+                    if (!ß.data.trackIDs.has(thisTrack.id)) {
+                        ß.data.tracks.push({
+                            artist: thisTrack.Composer,
+                            duration: thisTrack.LengthInMinSec,
+                            number: Number(thisTrack.TrackNumber),
+                            title: thisTrack.Version
+                                ? `${thisTrack.Title} (${thisTrack.Version.toLowerCase()})`
+                                : thisTrack.Title
+                        });
+                        ß.data.trackIDs.add(thisTrack.ID);
+                        ß.data.trackNumbers.add(Number(thisTrack.TrackNumber));
+                    }
+                };
 
+                [...track.AlternateTracks, track].map((t) => processTrack(t));
+            }
+
+            // -----------------------------------------------------------------
+
+            else setBadMode(); // eslint-disable-line curly
         }
 
         const highestTrackNumber = Math.max(...ß.data.trackNumbers);
@@ -470,11 +541,11 @@
         // -----------------------------------------------------------------
 
         if (ß.data.MODE === `LIVE`) {
-            if (document.querySelector(`#mbPos`) === null) {
+            if (document.querySelector(`#shadowPos`) === null) {
                 document.querySelector(`#tblNavBar`).parentNode.parentNode.nextElementSibling.querySelector(`td`)
-                    .appendChild(ß.makeFragmentFromString(`<div id="mbPos" style="white-space: nowrap;">`));
+                    .appendChild(ß.makeFragmentFromString(`<div id="shadowPos" style="white-space: nowrap;">`));
             }
-            mbBtnPos = document.querySelector(`#mbPos`);
+            mbBtnPos = document.querySelector(`#shadowPos`);
         }
 
         // -----------------------------------------------------------------
@@ -487,16 +558,26 @@
         // -----------------------------------------------------------------
 
         else if (ß.data.MODE === `SG3`) {
-            if (document.querySelector(`#mbPos`) === null) {
+            if (document.querySelector(`#shadowPos`) === null) {
                 document.querySelector(`.searchBar__searchCrumbs, .searchBar__icons, .album-code-information`)
-                    .appendChild(ß.makeFragmentFromString(`<div id="mbPos" style="width: 100px; height: 30px; white-space: nowrap;">`));
+                    .appendChild(ß.makeFragmentFromString(`<div id="shadowPos" style="width: 100px; height: 30px; white-space: nowrap;">`));
             }
-            mbBtnPos = document.querySelector(`#mbPos`);
+            mbBtnPos = document.querySelector(`#shadowPos`);
         }
 
         // -----------------------------------------------------------------
 
         else if (ß.data.MODE === `SGL`) {
+            mbBtnPos = document.querySelector(`#shadowPos`);
+        }
+
+        // -----------------------------------------------------------------
+
+        else if (ß.data.MODE === `9LIVES`) {
+            if (document.querySelector(`#shadowPos`) === null) {
+                document.querySelector(`#searchBoxContainer`)
+                    .appendChild(ß.makeFragmentFromString(`<div id="shadowPos" style="width: 100px; height: 30px; white-space: nowrap; margin: 0 auto;">`));
+            }
             mbBtnPos = document.querySelector(`#shadowPos`);
         }
 
@@ -520,22 +601,24 @@
         mbBtnPos.shadowRoot.appendChild(mbForm);
     };
 
+    // Clean up anything from any previous release that may have been loaded this session
+    const cleanup = function cleanup () {
+        const mbBtnPos = document.querySelector(`#shadowPos`);
+
+        ß.data.errorState = 0;
+        ß.data.editTrackCount = 0;
+        ß.deleteNode(`#importerArtLink`);
+        Object.prototype.hasOwnProperty.call(ß.data, `reqArgs`) && Object.prototype.hasOwnProperty.call(ß.data.reqArgs, `collectionid`) && (ß.data.reqArgs.collectionid = ``);
+        mbBtnPos !== null && mbBtnPos.shadowRoot && (mbBtnPos.shadowRoot.innerHTML = ``); // Remove any pre-existing buttons
+    };
+
     const setListener = function setListener (albumMenuNode) {
         albumMenuNode.addEventListener(`click`, (e) => {
             let albumID, requestPromise, objectcode; // eslint-disable-line init-declarations
 
-            // <-- Clean up anything from any previous release that may have been loaded this session
-            const mbBtnPos = document.querySelector(`#shadowPos`);
+            cleanup();
 
-            ß.data.errorState = 0;
-            ß.data.editTrackCount = 0;
-            Object.prototype.hasOwnProperty.call(ß.data, `reqArgs`) && Object.prototype.hasOwnProperty.call(ß.data.reqArgs, `collectionid`) && (ß.data.reqArgs.collectionid = ``);
-            mbBtnPos !== null && mbBtnPos.shadowRoot && (mbBtnPos.shadowRoot.innerHTML = ``); // Remove any pre-existing buttons
-            // --> Finished cleaning up
-
-            displayMsg(`MusicBrainz importer is working…`);
-
-            if (e.target.tagName === `A`) {
+            if (e.target.tagName === `A` || e.target.tagName === `IMG`) {
                 albumID = e.target.getAttribute(`objectid`) || e.target.getAttribute(`objectname`); // generic SG2 sites
                 if (albumID === null) {
                     if (ß.data.MODE === `LIVE`) { // LIVE
@@ -545,7 +628,7 @@
                         albumID = e.target.getAttribute(`href`).split(`/`)[2];
                     }
                     else { // West One Music, (others?)
-                        const shareLink = e.target.parentNode.parentNode.querySelector(`.share-button`);
+                        const shareLink = e.target.closest(`.album-col`).querySelector(`.share-button`);
 
                         if (shareLink !== null) {
                             albumID = shareLink.getAttribute(`objectid`);
@@ -554,7 +637,10 @@
                     }
                 }
             }
-            else if (e.target.tagName === `DIV` && !e.target.classList.contains(`leftMenuPanelItemRow__title--1`)) { // SG3
+            else if (e.target.tagName === `DIV` && ß.data.MODE === `9LIVES`) { // 9 Lives Music
+                albumID = e.target.parentNode.getAttribute(`object-code`);
+            }
+            else if (e.target.tagName === `DIV` && e.target.classList.contains(`leftMenuPanelItemRow__title--2`)) { // SG3
                 albumID = e.target.parentNode.parentNode.getAttribute(`object-id`);
             }
             else { // Item clicked was not an album item
@@ -562,6 +648,8 @@
 
                 return; // eslint-disable-line no-useless-return
             }
+
+            displayMsg(`MusicBrainz importer is working…`);
 
             // -----------------------------------------------------------------
 
@@ -593,7 +681,8 @@
                                 value: Object.freeze({
                                     albumCode: relData[1],
                                     albumLibraryName: json[0].cataloguename,
-                                    albumName: relData[2]
+                                    albumName: relData[2],
+                                    art: json[0].imageurl
                                 }),
                                 writable: true
                             },
@@ -714,6 +803,33 @@
 
             // -----------------------------------------------------------------
 
+            else if (ß.data.MODE === `9LIVES`) {
+                // eslint-disable-next-line new-cap
+                requestPromise = AlbumService.GetAlbumByCDCode(albumID) // Function loaded by the site, returns a Promise
+                    .then((obj) => obj.Album)
+                    .then((data) => {
+                        data.LibraryName = ß.getLabelFromPrefix(data.Code.match(/[A-Z]+/u)[0]);
+                        Object.defineProperties(ß.data, {
+                            ALBUM_JSON: {
+                                value: Object.freeze(data),
+                                writable: true
+                            }
+                        });
+                    })
+                    // eslint-disable-next-line new-cap
+                    .then(() => TrackService.GetTracksDetailsByID(`${ß.data.ALBUM_JSON.Tracks.map((track) => track.ID)}`)) // Function loaded by the site, returns a Promise
+                    .then((obj) => {
+                        Object.defineProperties(ß.data, {
+                            TRACK_JSON: {
+                                value: Object.freeze(obj.Tracks),
+                                writable: true
+                            }
+                        });
+                    });
+            }
+
+            // -----------------------------------------------------------------
+
             else setBadMode(); // eslint-disable-line curly
 
             // -----------------------------------------------------------------
@@ -764,6 +880,12 @@
 
         // -----------------------------------------------------------------
 
+        else if (ß.data.MODE === `9LIVES`) {
+            // None currently
+        }
+
+        // -----------------------------------------------------------------
+
         else setBadMode(); // eslint-disable-line curly
 
         // -----------------------------------------------------------------
@@ -780,17 +902,23 @@
                 return `SG3`;
             case typeof homepageOption === `string`:
                 return `SGL`;
+            case typeof defaultPlaylistName === `string`:
+                return `9LIVES`;
             default:
                 return `unknown`;
             }
         })(true);
 
         const waitForMenu = async () => {
-                const noLibraryVar = document.querySelector(`#librariesSortable, #leftNavContainer, .jspPane, .album-grid`),
-                    hasLibraryVar = document.querySelector(`#divLibrariesPage`);
+                const noLibraryVar = document.querySelector(`#librariesSortable, #leftNavContainer, .jspPane, .album-grid, .pageContainer__content`),
+                    hasLibraryVar = [...document.querySelectorAll(`#divLibrariesPage, #divAlbumFeatured`)].filter((a) => a.style.display !== `none`)[0]; // West One Music
 
-                if (noLibraryVar !== null || (hasLibraryVar !== null && typeof libraries === `string`)) {
+                loadedcheck: if (noLibraryVar !== null || (hasLibraryVar !== null && typeof libraries === `string`)) { // eslint-disable-line no-labels
+                    // eslint-disable-next-line max-statements-per-line, no-labels
+                    if (ß.data.MODE === `9LIVES` && !document.querySelector(`#landingPage`).getAttribute(`loaded`)) { break loadedcheck; } // 9 Lives Music, page is not yet loaded.
                     clearInterval(checker); // eslint-disable-line no-use-before-define
+                    window.onhashchange = () => cleanup();
+                    ß.data.errorState = 0;
                     getSiteSettings();
                     await populateLabelDB();
                     setListener(noLibraryVar || hasLibraryVar);
