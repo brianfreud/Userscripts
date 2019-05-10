@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name           Utility functions
-// @version        2019.5.8.0
+// @version        2019.5.10.0
 // @namespace      https://github.com/brianfreud
 // @downloadURL    https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
 // @updateURL      https://raw.githubusercontent.com/brianfreud/Userscripts/edit/master/utility_functions.js
@@ -153,7 +153,7 @@ const ß = {};
             }
         },
 
-        // Turns artist data for each tracks into an array of artist names.
+        // Turns artist data for each track into an array of artist names.
         cleanTrackArtists () {
             // Converts artist data into an array of artist names
             const buildArtistArray = (data) => // eslint-disable-next-line implicit-arrow-linebreak
