@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Import Harvest Media SG2/SG3/SGL/LIVE release listings to MusicBrainz
 // @description    Add a button to import Harvest Media (LIVE, SG2, SG3, & SGL-based servers) release listings to MusicBrainz
-// @version        2019.5.10.0
+// @version        2019.5.17.0
 // @include        http*://www.tunedock.ie*
 // @include        http*://www.brilliantmusic.co.uk*
 // @include        http*://www.beatsfresh.com*
@@ -347,7 +347,7 @@
         }
     };
 
-    const setTracksInfo = async function setTracksInfo () { // eslint-disable-line complexity
+    const setTracksInfo = function setTracksInfo () { // eslint-disable-line complexity
         const data = ß.data.TRACK_JSON,
             getArtistForTrack = (trackID) => {
                 const artist = ß.data.MOREINFO_HTML
@@ -360,12 +360,13 @@
                     ? artist
                     : `unknown`; // Artist name field in the data is blank
             };
+        let counter = ß.data.TRACK_JSON.length;
 
         ß.data.trackNumbers = new Set();
         ß.data.trackIDs = new Set();
         ß.data.editTrackCount = 0;
 
-        for (const track of data) {
+        for (const [i, track] of data.entries()) {
 
             // -----------------------------------------------------------------
 
@@ -416,33 +417,40 @@
             // -----------------------------------------------------------------
 
             else if (ß.data.MODE === `SG3`) {
-                const trackObj = {
-                    duration: ß.formatSeconds(track.Duration || track.duration),
-                    number: parseInt(track.TrackNumber || track.trackNumber, 10),
-                    title: ß.unentity(track.title || track.Title).remove(`Tk${track.TrackNumber} `).remove(/^\d+\.\s/u).toTitleCase()
-                };
-
-                (track.version || track.Version) && ß.unentity(trackObj.title = `${trackObj.title} (${(track.version || track.Version).toLowerCase()})`);
-
                 if (Object.prototype.hasOwnProperty.call(track, `Composer`)) { // generic SG3
-                    trackObj.artist = track.Composer;
+                    const trackObj = {
+                        artist: track.Composer,
+                        duration: ß.formatSeconds(track.Duration || track.duration),
+                        number: parseInt(track.TrackNumber || track.trackNumber, 10),
+                        title: ß.unentity(track.title || track.Title).remove(`Tk${track.TrackNumber} `).remove(/^\d+\.\s/u).toTitleCase()
+                    };
+
+                    (track.version || track.Version) && (track.version || track.Version) !== `false` && ß.unentity(trackObj.title = `${trackObj.title} (${(track.version || track.Version).toLowerCase()})`);
                 }
                 else { // West One Music, (others?)
+                    const artist = ß.data.MOREINFO_HTML[i].composer,
+                        addTrack = (trackData, number) => {
+                            const trackObj = {
+                                artist,
+                                duration: (/:/u).test(trackData.duration)
+                                    ? trackData.duration
+                                    : ß.formatSeconds(trackData.duration),
+                                number,
+                                title: ß.unentity(trackData.title).toTitleCase()
+                            };
 
-                    await fetch(`https://www.westonemusic.com/Handlers/GetTrack.ashx`, { // eslint-disable-line no-await-in-loop
-                        headers: {
-                            'content-type': `application/x-www-form-urlencoded; charset=UTF-8`
-                        },
-                        body: `objectid=9549110ccb9334c6&playlisttype=Playlist_AlbumTab`,
-                        method: POST
-                    })
-                        .then((txt) => txt.text())
-                        .then((blob) => eval(blob)) // eslint-disable-line no-eval
-                        .then((obj) => trackObj.artist = obj.trackComposers); // eslint-disable-line no-return-assign
+                            ß.data.tracks.push(trackObj);
+                            ß.data.trackNumbers.add(number);
+                        };
+
+                    addTrack(track, i + 1);
+                    for (const thisEdit of track.edits.all_trackedits) {
+                        addTrack(thisEdit, ++counter);
+                    }
+
                 }
 
-                ß.data.tracks.push(trackObj);
-                ß.data.trackNumbers.add(trackObj.number);
+
             }
 
             // -----------------------------------------------------------------
@@ -763,12 +771,45 @@
                                 ALBUM_JSON: {
                                     value: Object.freeze(json),
                                     writable: true
-                                },
-                                TRACK_JSON: {
-                                    value: Object.freeze(eval(json.tracksJson).all_tracks), // eslint-disable-line no-eval
-                                    writable: true
                                 }
                             });
+
+                            return eval(json.tracksJson).all_tracks; // eslint-disable-line no-eval
+                        })
+                        .then(async (initalTrackInfo) => {
+                            const body = ß.makeArgString({
+                                objectid: encodeURIComponent(initalTrackInfo.map((main) => main.id).join()), // eslint-disable-line no-eval
+                                playlisttype: `Playlist_AlbumTab`,
+                                trackindex: 0,
+                                playlistattributename: `all_tracks`,
+                                actionidentifier: `album`,
+                                foralternate: true,
+                                fortrack: true,
+                                libraries
+                            });
+
+                            await fetch(`${document.location.origin}/Handlers/GetTrack.ashx`, { // eslint-disable-line no-await-in-loop
+                                headers: {
+                                    'content-type': `application/x-www-form-urlencoded; charset=UTF-8`
+                                },
+                                body,
+                                method: `POST`
+                            })
+                                .then((txt) => txt.text())
+                                .then((txt) => eval(txt)) // eslint-disable-line no-eval
+                                .then((trackData) => {
+                                    Object.defineProperties(ß.data, {
+                                        TRACK_JSON: {
+                                            value: Object.freeze(eval(trackData.tracksJson).all_tracks), // eslint-disable-line no-eval
+                                            writable: true
+                                        },
+                                        MOREINFO_HTML: {
+                                            value: Object.freeze(eval(trackData.tracksHtml)), // eslint-disable-line no-eval
+                                            writable: true
+                                        }
+                                    });
+                                });
+
                         });
                 }
             }
