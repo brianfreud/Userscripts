@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Import Musou release listings to MusicBrainz
 // @description    Add a button to import Musou release listings to MusicBrainz
-// @version        2019.4.26.0
+// @version        2019.6.2.0
 // @include        http://www.musou.gr/music/album/*
 // @namespace      https://github.com/brianfreud
 /* global          MBImport, ß */
@@ -100,7 +100,7 @@
             catNum: ifPropExists(`Album code`),
             label: ifPropExists(`Sub-label`).toLowerCase(),
             releaseName: ifPropExists(`Album`),
-            tracks = [],
+            tracks: [],
             url: document.location.href,
             year: ifPropExists(`Year`)
         });
